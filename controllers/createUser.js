@@ -1,19 +1,20 @@
+import dotenv from 'dotenv';
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import user from "../models/userSchema.js";
 import { mailSend } from "../emailVerify/mailVerify.js";
+dotenv.config();
 
-export const postData = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const token = jwt.sign(
-      {
-        data: "Token Data",
-      },
-      "ourSecretKey",
-      { expiresIn: "1m" }
+      {}, process.env.secretKey, { expiresIn: "5m" }
     );
 
     const { email, password } = req.body;
-    const newData = await user.create({ email, password, token });
+    const encryptedPass = await bcrypt.hash(password, 10);
+
+    const newData = await user.create({ email, password: encryptedPass, token });
     mailSend(token, email);
 
     if (newData) {
@@ -26,7 +27,7 @@ export const postData = async (req, res) => {
   } catch (err) {
     res.json({
       status: 404,
-      message: "User is already present",
+      message: "Failed to create user",
       success: false,
     });
   }
