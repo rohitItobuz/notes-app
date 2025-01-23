@@ -4,6 +4,7 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
+    unique : true
   },
   password: {
     type: String,
@@ -13,6 +14,10 @@ const userSchema = new Schema({
     type: String
   },
   verify:{
+    type: Boolean,
+    default:false
+  },
+  login:{
     type: Boolean,
     default:false
   }

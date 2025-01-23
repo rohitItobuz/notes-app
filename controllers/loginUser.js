@@ -1,36 +1,19 @@
 import bcrypt from "bcryptjs";
 import user from "../models/userSchema.js";
+import { errorMessage, successMessage } from "../helper/statusMessage.js";
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await user.findOne({ email });
-    if (!result) {
-      res.json({
-        status: 404,
-        message: "Invalid credentials",
-        success: false,
-      });
-    } else {
-      const passwordMatch = await bcrypt.compare(password, result.password);
-      if (!passwordMatch) {
-        res.json({
-          status: 404,
-          message: "Wrong Password",
-          success: false,
-        });
-      } else {
-        res.json({
-          status: 200,
-          message: "Successfully login user",
-          success: true,
-        });
-      }
-    }
+    if (!result) return errorMessage(res, "Invalid credentials");
+
+    const passwordMatch = await bcrypt.compare(password, result.password);
+    if (!passwordMatch) return errorMessage(res, "Wrong Password");
+
+    result.login = true;
+    await result.save();
+    successMessage(res, "Successfully login user");
   } catch (error) {
-    res.json({
-      status: 500,
-      message: "Internal server error",
-      success: false,
-    });
+    errorMessage(res, "Internal server error");
   }
 };
