@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import { databaseConnect } from "./config/dbConnection.js";
-import route from './routes/noteRoutes.js'
+import userRoute from './routes/userRoutes.js'
+import noteRoute from './routes/notesRoutes.js'
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ app.listen(port, () => {
   console.log(`Notes app listening on port ${port}`);
 });
 
-app.use("/user", route);
+app.use("/user", userRoute);
+app.use("/notes", noteRoute);
 
 databaseConnect();
