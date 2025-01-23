@@ -6,7 +6,7 @@ import { register, login, verifyEmail } from "../controllers/userController.js";
 const userRoute = express.Router();
 
 userRoute.post("/register", validateData(userValidationSchema), register);
-userRoute.get("/verify/:token", verifyEmail);
+userRoute.get("/verify/:email/:token", verifyEmail);
 userRoute.post("/login", validateData(userValidationSchema), login);
 
 export default userRoute;
