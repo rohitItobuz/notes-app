@@ -12,7 +12,6 @@ export const register = async (req, res) => {
     const { email, password } = req.body;
     const encryptedPass = await bcrypt.hash(password, 10);
     const token = jwt.sign({}, process.env.secretKey, { expiresIn: "5m" });
-
     const userPresent = await user.findOne({ email, 'verify': true });
     if (userPresent)
       return errorMessage(res, "It seems you already have an account.");
@@ -30,6 +29,7 @@ export const verifyEmail = async (req, res) => {
     const { email, token } = req.params;
 
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
+      console.log('this' + decoded);
       if (err) return errorMessage(res, "Email verification failed, possibly the link is invalid or expired.");
 
       const result = await user.findOne({ email, token });

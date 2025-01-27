@@ -8,7 +8,7 @@ export const successMessage = (res, text) => {
 
 export const errorMessage = (res, text) => {
   return res.json({
-    status: 404,
+    status: 500,
     message: text,
     success: false,
   });
