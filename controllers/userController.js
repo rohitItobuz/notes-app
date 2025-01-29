@@ -42,7 +42,8 @@ export const verifyEmail = async (req, res) => {
   try {
     const token = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
-      if (err) return errorMessage(res, "Email verification failed, possibly the link is invalid or expired.");
+      if (err)
+        return errorMessage(res, `Email verification failed, ${err.message}`);
       const id = decoded.id;
       const result = await user.findByIdAndUpdate(id, { isVerified: true });
       if (!result) return errorMessage(res, "Email verification failed.");
@@ -65,14 +66,35 @@ export const login = async (req, res) => {
     if (!passwordMatch) return errorMessage(res, "Invalid credentials");
 
     const id = result._id;
-    const refreshToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "10m",
-    });
-    const accessToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "30m",
-    });
+    const refreshToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "15d" });
+    const accessToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "30m" });
     await session.create({ userId: id });
-    return res.json({ status: 200, refreshToken, accessToken, message: "You logged in successfully", success: true });
+    return res.json({
+      status: 200,
+      refreshToken,
+      accessToken,
+      message: "You logged in successfully",
+      success: true,
+    });
+  } catch (error) {
+    errorMessage(res, "Internal server error");
+  }
+};
+
+export const regenerateAccessToken = (req, res) => {
+  try {
+    const token = req.headers.authorization.replace("Bearer ", "");
+    jwt.verify(token, process.env.secretKey, async (err, decoded) => {
+      if (err) return errorMessage(res, err.message);
+      const id = decoded.id;
+      const accessToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "30m" });
+      return res.json({
+        status: 200,
+        accessToken,
+        message: "Successfully change access token",
+        success: true,
+      });
+    });
   } catch (error) {
     errorMessage(res, "Internal server error");
   }
