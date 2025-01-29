@@ -2,62 +2,77 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import user from "../models/userSchema.js";
+import session from "../models/sessionSchema.js";
 import { mailSend } from "../emailVerify/mailSend.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
 
 dotenv.config();
 
+export const verificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userPresent = await user.findOne({ email });
+    if (userPresent.isVerified)
+      return errorMessage(res, "You are already verified.");
+    const token = jwt.sign({ id: userPresent._id }, process.env.secretKey, {
+      expiresIn: "5m",
+    });
+    mailSend(token, email);
+    return successMessage(res, "Verification mail has been successfully sent.");
+  } catch (err) {
+    errorMessage(res, "Internal Server Error");
+  }
+};
+
 export const register = async (req, res) => {
   try {
     const { email, password } = req.body;
     const encryptedPass = await bcrypt.hash(password, 10);
-    const token = jwt.sign({}, process.env.secretKey, { expiresIn: "5m" });
-    const userPresent = await user.findOne({ email, 'verify': true });
+    const userPresent = await user.findOne({ email });
     if (userPresent)
       return errorMessage(res, "It seems you already have an account.");
-    await user.create({ email, password: encryptedPass, token });
-    mailSend(token, email);
-    return successMessage(res, "Your account has been successfully created.");
+    await user.create({ email, password: encryptedPass });
+    verificationEmail(req, res);
   } catch (err) {
-    console.log(err)
     errorMessage(res, "Internal Server Error");
   }
 };
 
 export const verifyEmail = async (req, res) => {
   try {
-    const { email, token } = req.params;
-
+    const token = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
-      console.log('this' + decoded);
       if (err) return errorMessage(res, "Email verification failed, possibly the link is invalid or expired.");
-
-      const result = await user.findOne({ email, token });
-      if (!result) return errorMessage(res, "Email verification failed, possibly the link is invalid or expired.");
-
-      result.verify = true;
-      result.token = "";
-      await result.save();
+      const id = decoded.id;
+      const result = await user.findByIdAndUpdate(id, { isVerified: true });
+      if (!result) return errorMessage(res, "Email verification failed.");
       successMessage(res, "Email verified successfully");
     });
   } catch (err) {
-    errorMessage(res, "Email not verified");
+    errorMessage(res, "Internal server error");
   }
 };
 
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await user.findOne({ email, "verify": true });
+    const result = await user.findOne({ email });
     if (!result) return errorMessage(res, "Invalid credentials");
 
-    const passwordMatch = await bcrypt.compare(password, result.password);
-    if (!passwordMatch) return errorMessage(res, "Wrong Password");
+    if (!result.isVerified) return errorMessage(res, "You are not verified.");
 
-    result.login = true;
-    await result.save();
-    successMessage(res, "Successfully login user");
-    return result._id.toString();
+    const passwordMatch = await bcrypt.compare(password, result.password);
+    if (!passwordMatch) return errorMessage(res, "Invalid credentials");
+
+    const id = result._id;
+    const refreshToken = jwt.sign({ id }, process.env.secretKey, {
+      expiresIn: "10m",
+    });
+    const accessToken = jwt.sign({ id }, process.env.secretKey, {
+      expiresIn: "30m",
+    });
+    await session.create({ userId: id });
+    return res.json({ status: 200, refreshToken, accessToken, message: "You logged in successfully", success: true });
   } catch (error) {
     errorMessage(res, "Internal server error");
   }

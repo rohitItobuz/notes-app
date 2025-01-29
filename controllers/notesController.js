@@ -3,9 +3,11 @@ import { errorMessage, successMessage } from "../helper/statusMessage.js";
 
 export const createNote = async (req, res) => {
   try {
-    const { userId, title, content } = req.body;
+    const { title, content } = req.body;
+    const userId = req.userId;
     const targetNote = await note.findOne({ userId, title });
-    if (targetNote) return errorMessage(res, "Note with this title is already present");
+    if (targetNote)
+      return errorMessage(res, "Note with this title is already present");
     await note.create({ userId, title, content });
     return successMessage(res, "One note has been successfully created.");
   } catch (err) {
@@ -25,13 +27,13 @@ export const deleteNote = async (req, res) => {
 
 export const updateNote = async (req, res) => {
   try {
-    const { userId, title, content } = req.body;
+    const { title, content } = req.body;
+    const userId = req.userId;
     const targetNote = await note.findById(req.params.id);
     if (!targetNote) return errorMessage(res, "This note is not exist");
     const checkUnique = await note.findOne({ userId, title });
     if (checkUnique)
-      return errorMessage(res, "Note with this title is already present");
-
+      return errorMessage(res, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
     await targetNote.save();
@@ -44,8 +46,13 @@ export const updateNote = async (req, res) => {
 export const getOne = async (req, res) => {
   try {
     const targetNote = await note.findById(req.params.id);
-    if (!targetNote) return errorMessage(res, "This note is not exist");
-    res.send(targetNote);
+    if (!targetNote) return errorMessage(res, "This note is not exist.");
+    res.json({
+      status: 200,
+      data: targetNote,
+      message: "Successfully fetch one note",
+      success: true,
+    });
   } catch (err) {
     errorMessage(res, "Internal Server Error");
   }
@@ -53,11 +60,17 @@ export const getOne = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const regexpTitle = new RegExp("^" + req.params.title);
     const targetNotes = await note.find({ userId, title: regexpTitle });
-    if (!targetNotes.length) return errorMessage(res, "No such note is present");
-    res.send(targetNotes);
+    if (!targetNotes.length)
+      return errorMessage(res, "No such note is present.");
+    res.json({
+      status: 200,
+      data: targetNotes,
+      message: `Successfully fetch ${targetNotes.length} notes`,
+      success: true,
+    });
   } catch (err) {
     errorMessage(res, "Internal Server Error");
   }

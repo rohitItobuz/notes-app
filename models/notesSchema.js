@@ -1,7 +1,7 @@
 import { mongoose, Schema } from "mongoose";
 import user from './userSchema.js'
 
-const notesSchema = new Schema({
+const notes = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: user,
@@ -21,4 +21,4 @@ const notesSchema = new Schema({
   },
 });
 
-export default mongoose.model("notes", notesSchema);
+export default mongoose.model("notes", notes);
