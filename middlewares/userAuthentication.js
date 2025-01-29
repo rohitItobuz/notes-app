@@ -9,7 +9,7 @@ export const userAuthentication = async (req, res, next) => {
   try {
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(accessToken, process.env.secretKey, async (err, decoded) => {
-      if (err) return errorMessage(res, "The link is invalid or expired.");
+      if (err) return errorMessage(res, err.message);
       req.userId = decoded.id;
     });
     const targetUser = await user.findOne({ _id: req.userId });
