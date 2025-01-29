@@ -61,8 +61,31 @@ export const getOne = async (req, res) => {
 export const getAll = async (req, res) => {
   try {
     const userId = req.userId;
-    const regexpTitle = new RegExp("^" + req.params.title);
-    const targetNotes = await note.find({ userId, title: regexpTitle });
+    const { page } = req.params;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+    const targetNotes = await note.find({ userId }).skip(offset).limit(limit);;
+    if (!targetNotes.length)
+      return errorMessage(res, "No such note is present.");
+    res.json({
+      status: 200,
+      data: targetNotes,
+      message: `Successfully fetch ${targetNotes.length} notes`,
+      success: true,
+    });
+  } catch (err) {
+    errorMessage(res, "Internal Server Error");
+  }
+};
+
+export const searchNote = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { title, page } = req.params;
+    const regexpTitle = new RegExp("^" + title);
+    const limit = 8;
+    const offset = (page - 1) * limit;
+    const targetNotes = await note.find({ userId, title: regexpTitle }).skip(offset).limit(limit);;
     if (!targetNotes.length)
       return errorMessage(res, "No such note is present.");
     res.json({

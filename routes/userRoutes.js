@@ -7,8 +7,8 @@ const userRoute = express.Router();
 
 userRoute.post('/email',verificationEmail);
 userRoute.get("/verify/:token", verifyEmail);
+userRoute.get('/regenerate-token',regenerateAccessToken);
 userRoute.post("/login", validateData(userValidationSchema), login);
 userRoute.post("/register", validateData(userValidationSchema), register);
-userRoute.post('/regenerate-token',regenerateAccessToken);
 
 export default userRoute;
