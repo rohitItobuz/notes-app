@@ -66,9 +66,13 @@ export const login = async (req, res) => {
     if (!passwordMatch) return errorMessage(res, "Invalid credentials");
 
     const id = result._id;
-    const refreshToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "15d" });
-    const accessToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "30m" });
-    await session.create({ userId: id });
+    const refreshToken = jwt.sign({ id }, process.env.secretKey, {
+      expiresIn: "15d",
+    });
+    const accessToken = jwt.sign({ id }, process.env.secretKey, {
+      expiresIn: "30m",
+    });
+    await session.create({ userId: id, refreshToken });
     return res.json({
       status: 200,
       refreshToken,
@@ -87,7 +91,9 @@ export const regenerateAccessToken = (req, res) => {
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
       if (err) return errorMessage(res, err.message);
       const id = decoded.id;
-      const accessToken = jwt.sign({ id }, process.env.secretKey, { expiresIn: "30m" });
+      const accessToken = jwt.sign({ id }, process.env.secretKey, {
+        expiresIn: "30m",
+      });
       return res.json({
         status: 200,
         accessToken,
@@ -97,5 +103,28 @@ export const regenerateAccessToken = (req, res) => {
     });
   } catch (error) {
     errorMessage(res, "Internal server error");
+  }
+};
+
+export const logoutAll = async (req, res) => {
+  try {
+    const userId = req.userId;
+    await session.deleteMany({ userId });
+    successMessage(res, "Successfully deleted all sessions");
+  } catch (err) {
+    errorMessage(res, "Internal Server Errorrr");
+  }
+};
+
+export const logoutOne = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const refreshToken = req.headers.authorization.replace("Bearer ", "");
+    console.log(refreshToken);
+    const targetUser = await session.findOneAndDelete({ userId, refreshToken });
+    if (!targetUser) return errorMessage(res, "Invalid refreshToken");
+    successMessage(res, "Successfully deleted one session");
+  } catch (err) {
+    errorMessage(res, "Internal Server Error");
   }
 };

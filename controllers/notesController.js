@@ -36,6 +36,7 @@ export const updateNote = async (req, res) => {
       return errorMessage(res, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
+    targetNote.date = Date.now();
     await targetNote.save();
     successMessage(res, "Successfully edited one note");
   } catch (err) {
