@@ -13,6 +13,9 @@ const user = new Schema({
   isVerified: {
     type: Boolean,
     default: false
+  },
+  profile: {
+    type:String
   }
 });
 

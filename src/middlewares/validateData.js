@@ -1,5 +1,5 @@
-import { errorMessage } from "../helper/statusMessage.js";
 import { ZodError } from "zod";
+import { errorMessage } from "../helper/statusMessage.js";
 
 export const validateData = (schema) => {
   return (req, res, next) => {

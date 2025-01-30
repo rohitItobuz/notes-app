@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import hbs from "nodemailer-express-handlebars";
 
 dotenv.config();
 
@@ -11,15 +12,32 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter.use(
+  "compile",
+  hbs({
+    viewEngine: {
+      extName: ".hbs",
+      partialsDir: "./src/views/",
+      layoutsDir: "./src/views/",
+      defaultLayout: "",
+    },
+    viewPath: "./src/views/",
+    extName: ".hbs",
+  })
+);
+
 export const mailSend = (token, email) => {
   const mailConfigurations = {
     from: process.env.serverEmail,
     to: email,
     subject: "Email Verification",
-    text: `Please follow the given link to verify your email http://localhost:3000/user/verify/${token}`,
+    template: "emailFormat",
+    context: {
+      token: token,
+    },
   };
 
-  transporter.sendMail(mailConfigurations, (error, info) => {
+  transporter.sendMail(mailConfigurations, (error) => {
     if (error) throw Error(error);
   });
 };

@@ -2,10 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Notes app backend",
-  "main": "index.js",
+  "main": "./src/index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.j"
+    "start": "nodemon --exec \"npx eslint . && nodemon src/index\""
   },
   "author": "Rohit Kheto",
   "license": "ISC",
@@ -13,10 +13,19 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "hbs": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
+    "nodemailer-express-handlebars": "^7.0.0",
     "nodemon": "^3.1.9",
+    "path": "^0.12.7",
     "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "eslint": "^9.19.0",
+    "globals": "^15.14.0"
   }
 }

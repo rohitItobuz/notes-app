@@ -8,9 +8,11 @@ import {
   logoutOne,
   logoutAll,
   verifyEmail,
+  uploadProfile,
   verificationEmail,
   regenerateAccessToken,
 } from "../controllers/userController.js";
+import { profileUpload } from "../middlewares/multer.js";
 
 const userRoute = express.Router();
 
@@ -21,5 +23,11 @@ userRoute.delete("/logout-one", userAuthentication, logoutOne);
 userRoute.delete("/logout-all", userAuthentication, logoutAll);
 userRoute.post("/login", validateData(userValidationSchema), login);
 userRoute.post("/register", validateData(userValidationSchema), register);
+userRoute.post(
+  "/upload",
+  profileUpload.single("uploadedFile"),
+  userAuthentication,
+  uploadProfile
+);
 
 export default userRoute;

@@ -1,5 +1,5 @@
 import { mongoose, Schema } from "mongoose";
-import user from './userSchema.js'
+import user from './userSchema.js';
 
 const notes = new Schema({
   userId: {
@@ -19,6 +19,9 @@ const notes = new Schema({
     type: Date,
     default: Date.now,
   },
+  file: {
+    type:String
+  }
 });
 
 export default mongoose.model("notes", notes);
