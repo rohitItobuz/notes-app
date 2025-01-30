@@ -13,7 +13,7 @@ app.use(express.json());
 app.use("/user", userRoute);
 app.use("/notes", noteRoute);
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).send("<h1>Page not found on the server</h1>");
 });
 

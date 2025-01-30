@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import user from "../models/userSchema.js";
 import session from "../models/sessionSchema.js";
-import { mailSend } from "../emailVerify/mailSend.js";
+import { mailSend } from "../helper/mailSend.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
 
 dotenv.config();
@@ -20,6 +20,7 @@ export const verificationEmail = async (req, res) => {
     mailSend(token, email);
     return successMessage(res, "Verification mail has been successfully sent.");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -34,6 +35,7 @@ export const register = async (req, res) => {
     await user.create({ email, password: encryptedPass });
     verificationEmail(req, res);
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -50,6 +52,7 @@ export const verifyEmail = async (req, res) => {
       successMessage(res, "Email verified successfully");
     });
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal server error");
   }
 };
@@ -80,7 +83,8 @@ export const login = async (req, res) => {
       message: "You logged in successfully",
       success: true,
     });
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal server error");
   }
 };
@@ -101,7 +105,8 @@ export const regenerateAccessToken = (req, res) => {
         success: true,
       });
     });
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal server error");
   }
 };
@@ -112,6 +117,7 @@ export const logoutAll = async (req, res) => {
     await session.deleteMany({ userId });
     successMessage(res, "Successfully deleted all sessions");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Errorrr");
   }
 };
@@ -125,6 +131,7 @@ export const logoutOne = async (req, res) => {
     if (!targetUser) return errorMessage(res, "Invalid refreshToken");
     successMessage(res, "Successfully deleted one session");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };

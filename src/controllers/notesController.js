@@ -11,6 +11,7 @@ export const createNote = async (req, res) => {
     await note.create({ userId, title, content });
     return successMessage(res, "One note has been successfully created.");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -21,6 +22,7 @@ export const deleteNote = async (req, res) => {
     if (!targetNote) return errorMessage(res, "This note is not exist");
     successMessage(res, "Successfully deleted one note");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -40,6 +42,7 @@ export const updateNote = async (req, res) => {
     await targetNote.save();
     successMessage(res, "Successfully edited one note");
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -55,6 +58,7 @@ export const getOne = async (req, res) => {
       success: true,
     });
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
@@ -83,6 +87,7 @@ export const getAllNotes = async (req, res) => {
       success: true,
     });
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };

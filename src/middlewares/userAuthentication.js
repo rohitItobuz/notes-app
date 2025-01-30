@@ -19,6 +19,7 @@ export const userAuthentication = async (req, res, next) => {
     if (!checkSession) return errorMessage(res, "User is not authenticated");
     next();
   } catch (err) {
+    console.log(err);
     errorMessage(res, "Internal Server Error");
   }
 };
