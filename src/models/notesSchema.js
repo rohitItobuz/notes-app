@@ -19,6 +19,9 @@ const notes = new Schema({
     type: Date,
     default: Date.now,
   },
+  file: {
+    type:String
+  }
 });
 
 export default mongoose.model("notes", notes);

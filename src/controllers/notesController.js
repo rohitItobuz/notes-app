@@ -91,3 +91,18 @@ export const getAllNotes = async (req, res) => {
     errorMessage(res, "Internal Server Error");
   }
 };
+
+export const uploadFile = async (req, res) => {
+  try {
+    if (!req.file) return errorMessage(res, "No file uploaded.");
+    const targetNote = await note.findById(req.params.id);
+    if (!targetNote) return errorMessage(res, "This note is not exist");
+    targetNote.file = req.file.filename;
+    targetNote.date = Date.now();
+    await targetNote.save();
+    successMessage(res, `File uploaded successfully: ${req.file.filename}`);
+  } catch (err) {
+    console.log(err);
+    errorMessage(res, "Internal server error");
+  }
+};

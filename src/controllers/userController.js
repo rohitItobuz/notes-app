@@ -135,3 +135,16 @@ export const logoutOne = async (req, res) => {
     errorMessage(res, "Internal Server Error");
   }
 };
+
+export const uploadProfile = async(req, res) => {
+  try {
+    const id = req.userId;
+    if (!req.file) return errorMessage(res, "No file uploaded.");
+    const result = await user.findByIdAndUpdate(id, { profile: req.file.filename });
+    if (!result) errorMessage(res, "No file uploaded.");
+    successMessage(res, `File uploaded successfully: ${req.file.filename}`);
+  } catch (err) {
+    console.log(err);
+    errorMessage(res, "Internal server error");
+  }
+};

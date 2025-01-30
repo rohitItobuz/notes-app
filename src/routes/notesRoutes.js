@@ -8,7 +8,9 @@ import {
   getAllNotes,
   getOne,
   updateNote,
+  uploadFile,
 } from "../controllers/notesController.js";
+import { noteAttachment } from "../middlewares/multer.js";
 
 const noteRouter = express.Router();
 
@@ -26,6 +28,12 @@ noteRouter.put(
   userAuthentication,
   validateData(noteValidationSchema),
   updateNote
+);
+noteRouter.post(
+  "/upload/:id",
+  noteAttachment.single("uploadedFile"),
+  userAuthentication,
+  uploadFile
 );
 
 export default noteRouter;
