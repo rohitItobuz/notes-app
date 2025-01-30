@@ -15,7 +15,7 @@ export const userAuthentication = async (req, res, next) => {
     const targetUser = await user.findOne({ _id: req.userId });
     if (!targetUser) return errorMessage(res, "User is not found");
     if (!targetUser.isVerified) return errorMessage(res, "You are not verified.");
-    const checkSession = await session.findOne({'userId' : req.userId});
+    const checkSession = await session.findOne({userId : req.userId});
     if (!checkSession) return errorMessage(res, "User is not authenticated");
     next();
   } catch (err) {
