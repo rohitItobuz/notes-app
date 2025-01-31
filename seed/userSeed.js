@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { faker } from "@faker-js/faker";
 import user from "../src/models/userSchema.js";
 import { databaseConnect } from "../src/config/dbConnection.js";
 
@@ -9,8 +10,9 @@ const generateUsers = (num) => {
   for (let i = 1; i <= num; i++) {
     const password = `Password@${i}`;
     const email = `rohit+${i}@itobuz.com`;
+    const username = faker.internet.username();
     const isVerified = true;
-    newUsers.push({ password, email, isVerified });
+    newUsers.push({ password, email, isVerified, username });
   }
   return newUsers;
 };
