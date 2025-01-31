@@ -32,12 +32,15 @@ export const verificationEmail = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
     const encryptedPass = await bcrypt.hash(password, 10);
     const userPresent = await user.findOne({ email });
     if (userPresent)
       return errorMessage(res, 409, "It seems you already have an account.");
-    await user.create({ email, password: encryptedPass });
+    const checkUsername = await user.findOne({ username });
+    if (checkUsername)
+      return errorMessage(res, 409, "Username is already present.");
+    await user.create({ email, password: encryptedPass, username });
     verificationEmail(req, res);
   } catch (err) {
     console.log(err);
@@ -72,16 +75,16 @@ export const verifyEmail = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await user.findOne({ email });
-    if (!result) return errorMessage(res, 401, "Invalid credentials");
+    const targetUser = await user.findOne({ email });
+    if (!targetUser) return errorMessage(res, 401, "Invalid credentials");
 
-    if (!result.isVerified)
+    if (!targetUser.isVerified)
       return errorMessage(res, 401, "You are not verified.");
 
-    const passwordMatch = await bcrypt.compare(password, result.password);
+    const passwordMatch = await bcrypt.compare(password, targetUser.password);
     if (!passwordMatch) return errorMessage(res, 401, "Invalid credentials");
 
-    const id = result._id;
+    const id = targetUser._id;
     const refreshToken = jwt.sign({ id }, process.env.secretKey, {
       expiresIn: "15d",
     });
@@ -163,6 +166,42 @@ export const uploadProfile = async (req, res) => {
       201,
       `File uploaded successfully: ${req.file.filename}`
     );
+  } catch (err) {
+    console.log(err);
+    errorMessage(res);
+  }
+};
+
+export const updateUsername = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const id = req.userId;
+    const checkUsername = await user.findOne({ username });
+    if (checkUsername)
+      return errorMessage(res, 409, "Username is already present.");
+    await user.findByIdAndUpdate(id, { username });
+    successMessage(res, 201, "Username changed successfully");
+  } catch (err) {
+    console.log(err);
+    errorMessage(res);
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    console.log(oldPassword);
+    console.log(newPassword);
+    const id = req.userId;
+    const targetUser = await user.findById(id);
+    const passwordMatch = bcrypt.compareSync(
+      oldPassword,
+      targetUser.password
+    );
+    if (!passwordMatch) return errorMessage(res, 401, "Wrong password");
+    targetUser.password = await bcrypt.hash(newPassword, 10);
+    await targetUser.save();
+    successMessage(res, 201, "Password changed successfully");
   } catch (err) {
     console.log(err);
     errorMessage(res);
