@@ -11,14 +11,16 @@ const noteAttachmentExtension = [
   "	application/msword",
 ];
 
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const originalName = path.basename(file.originalname, ext);
-    cb(null, `${originalName}` + "-" + Date.now() + `${ext}`);
-  },
-});
+const createSotrage = (folder) => {
+  return multer.diskStorage({
+    destination: `./uploads/${folder}`,
+    filename: function (req, file, cb) {
+      const ext = path.extname(file.originalname);
+      const originalName = path.basename(file.originalname, ext);
+      cb(null, `${originalName}` + "-" + Date.now() + `${ext}`);
+    },
+  });
+};
 
 const fileValidation = (allowedTypes) => {
   return (req, file, cb) => {
@@ -31,11 +33,11 @@ const fileValidation = (allowedTypes) => {
 };
 
 export const profileUpload = multer({
-  storage,
+  storage:createSotrage('user'),
   fileFilter: fileValidation(profileImageExtension),
 });
 
 export const noteAttachment = multer({
-  storage,
+  storage:createSotrage('note'),
   fileFilter: fileValidation(noteAttachmentExtension),
 });

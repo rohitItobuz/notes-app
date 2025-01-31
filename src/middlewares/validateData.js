@@ -11,9 +11,9 @@ export const validateData = (schema) => {
         const errorMessages = error.errors.map((issue) => ({
           message: `${issue.message}`,
         }));
-        errorMessage(res, errorMessages);
+        errorMessage(res, 400, errorMessages);
       } else {
-        errorMessage(res, "Internal Server Error");
+        errorMessage(res);
       }
     }
   };
