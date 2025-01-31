@@ -1,3 +1,4 @@
+import path from "path";
 import note from "../models/notesSchema.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
 
@@ -7,23 +8,23 @@ export const createNote = async (req, res) => {
     const userId = req.userId;
     const targetNote = await note.findOne({ userId, title });
     if (targetNote)
-      return errorMessage(res, "Note with this title is already present");
+      return errorMessage(res, 409, "Note with this title is already present");
     await note.create({ userId, title, content });
-    return successMessage(res, "One note has been successfully created.");
+    return successMessage(res, 201, "One note has been successfully created.");
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
 
 export const deleteNote = async (req, res) => {
   try {
     const targetNote = await note.findByIdAndDelete(req.params.id);
-    if (!targetNote) return errorMessage(res, "This note is not exist");
+    if (!targetNote) return errorMessage(res, 404, "This note does not exist");
     successMessage(res, "Successfully deleted one note");
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
 
@@ -32,10 +33,10 @@ export const updateNote = async (req, res) => {
     const { title, content } = req.body;
     const userId = req.userId;
     const targetNote = await note.findById(req.params.id);
-    if (!targetNote) return errorMessage(res, "This note is not exist");
+    if (!targetNote) return errorMessage(res, 404, "This note does not exist");
     const checkUnique = await note.findOne({ userId, title });
     if (checkUnique)
-      return errorMessage(res, "Note with this title is already present.");
+      return errorMessage(res, 409, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
     targetNote.date = Date.now();
@@ -43,23 +44,23 @@ export const updateNote = async (req, res) => {
     successMessage(res, "Successfully edited one note");
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
 
 export const getOne = async (req, res) => {
   try {
     const targetNote = await note.findById(req.params.id);
-    if (!targetNote) return errorMessage(res, "This note is not exist.");
+    if (!targetNote) return errorMessage(res, 404, "This note does not exist.");
     res.json({
-      status: 200,
+      status: 201,
       data: targetNote,
       message: "Successfully fetch one note",
       success: true,
     });
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
 
@@ -79,30 +80,37 @@ export const getAllNotes = async (req, res) => {
       .skip(offset)
       .limit(limit);
     if (!targetNotes.length)
-      return errorMessage(res, "No such note is present.");
+      return errorMessage(res, 404, "No such note is present.");
     res.json({
-      status: 200,
+      status: 201,
       data: targetNotes,
       message: `Successfully fetch ${targetNotes.length} notes`,
       success: true,
     });
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
 
 export const uploadFile = async (req, res) => {
   try {
-    if (!req.file) return errorMessage(res, "No file uploaded.");
+    if (!req.file) return errorMessage(res, 415, "No file uploaded.");
     const targetNote = await note.findById(req.params.id);
-    if (!targetNote) return errorMessage(res, "This note is not exist");
-    targetNote.file = req.file.filename;
+    if (!targetNote) return errorMessage(res, 404, "This note is not exist");
+    targetNote.file = path.join(
+      "http://localhost:3000/uploads/note",
+      req.file.filename
+    );
     targetNote.date = Date.now();
     await targetNote.save();
-    successMessage(res, `File uploaded successfully: ${req.file.filename}`);
+    successMessage(
+      res,
+      201,
+      `File uploaded successfully: ${req.file.filename}`
+    );
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal server error");
+    errorMessage(res);
   }
 };

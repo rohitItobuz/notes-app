@@ -9,17 +9,18 @@ export const userAuthentication = async (req, res, next) => {
   try {
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(accessToken, process.env.secretKey, async (err, decoded) => {
-      if (err) return errorMessage(res, err.message);
+      if (err) return errorMessage(res, 400, err.message);
       req.userId = decoded.id;
     });
     const targetUser = await user.findOne({ _id: req.userId });
-    if (!targetUser) return errorMessage(res, "User is not found");
-    if (!targetUser.isVerified) return errorMessage(res, "You are not verified.");
-    const checkSession = await session.findOne({userId : req.userId});
-    if (!checkSession) return errorMessage(res, "User is not authenticated");
+    if (!targetUser) return errorMessage(res, 404, "User not found");
+    if (!targetUser.isVerified)
+      return errorMessage(res, 401, "You are not verified.");
+    const checkSession = await session.findOne({ userId: req.userId });
+    if (!checkSession) return errorMessage(res, 401, "User  not authenticated");
     next();
   } catch (err) {
     console.log(err);
-    errorMessage(res, "Internal Server Error");
+    errorMessage(res);
   }
 };
