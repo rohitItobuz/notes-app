@@ -1,0 +1,4 @@
+.form-input-container:focus-within .form-label,
+.form-input:not(:placeholder-shown) + .form-label {
+  top: -10px;
+}
