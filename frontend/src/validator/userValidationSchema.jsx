@@ -30,7 +30,7 @@ export const registerSchema = z.object({
     if (val.password !== val.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Password is not the same as confirm password',
+        message: 'Please confirm your password',
         path: ['confirmPassword'],
       })
     }
@@ -39,4 +39,8 @@ export const registerSchema = z.object({
 export const logInSchema = z.object({
   email: userValidationObject.email,
   password: userValidationObject.password,
+});
+
+export const VerifySchema = z.object({
+  email: userValidationObject.email,
 });
