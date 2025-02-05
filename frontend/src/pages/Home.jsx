@@ -1,5 +1,5 @@
-import Navbar from "../components/Navbar";
-import { NavLinkSolid } from "../components/NavLinkSolid";
+import Navbar from "../components/nav/Navbar";
+import { NavLinkSolid } from "../components/nav/NavLinkSolid";
 import noteTakingImage from "../assets/note-taking-illustration.avif";
 
 const Home = () => {

@@ -4,7 +4,7 @@ import { FaLock } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-import Form from "../components/Form";
+import Form from "../components/form/Form";
 import { logInSchema } from "../validator/userValidationSchema";
 
 const inputs = [

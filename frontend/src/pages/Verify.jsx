@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { MdEmail } from "react-icons/md";
 
-import Form from "../components/Form";
+import Form from "../components/form/Form";
 import { VerifySchema } from "../validator/userValidationSchema";
 
 const onSubmit = async (data, e) => {

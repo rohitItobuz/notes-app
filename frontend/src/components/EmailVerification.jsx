@@ -1,6 +1,6 @@
 import { VscError } from "react-icons/vsc";
 import { FaRegCheckCircle } from "react-icons/fa";
-import { NavLinkSolid } from "./NavLinkSolid";
+import { NavLinkSolid } from "./nav/NavLinkSolid";
 
 export const EmailVerification = ({ message, success, status }) => {
     console.log(message);
