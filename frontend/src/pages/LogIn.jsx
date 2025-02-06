@@ -32,8 +32,11 @@ export default function LogIn() {
       );
       const result = response.data;
       if (result.success) {
-        localStorage.setItem("accessToken", result.accessToken);
-        localStorage.setItem("refreshToken", result.refreshToken);
+        const { accessToken, refreshToken, username, email } = result.data;
+        localStorage.clear();
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userDetails", JSON.stringify({username,email}));
         navigate("/dashboard");
         toast.success(result.message);
       } else {

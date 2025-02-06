@@ -7,17 +7,7 @@ import "./FormStyle.scss";
 import { FormErrorMsg } from "./FormErrorMsg";
 import { NavLinkTransparent } from "../nav/NavLinkTransparent";
 
-const Form = ({
-  heading,
-  inputs,
-  onSubmit,
-  btnText,
-  schema,
-  subHeading,
-  text,
-  linkText,
-  to,
-}) => {
+const Form = ({ heading, inputs, onSubmit, btnText, schema, subHeading, text, linkText, to, }) => {
   const {
     register,
     handleSubmit,
@@ -40,9 +30,8 @@ const Form = ({
             {inputs.map((input, id) => (
               <div key={id} className="relative w-full">
                 <div
-                  className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 ${
-                    errors[input.inputName] ? "border-red-500" : ""
-                  }`}
+                  className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 ${errors[input.inputName] ? "border-red-500" : ""
+                    }`}
                 >
                   {input.icon}
                   <input

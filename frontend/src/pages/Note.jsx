@@ -1,4 +1,4 @@
-import NoteNavbar from "../components/nav/NoteNavbar";
+import NoteNavbar from "../components/notes/NoteNavbar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
