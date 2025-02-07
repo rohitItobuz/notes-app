@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export const deleteNote = async (noteId) => {
+export const deleteNote = async (noteId, setNoteCount, closeModal) => {
   try {
     const response = await axios.delete(
       `http://localhost:3000/notes/delete/${noteId}`,
@@ -13,10 +13,12 @@ export const deleteNote = async (noteId) => {
     );
 
     const result = response.data;
-    console.log(result);
-    result.success
-      ? toast.success(result.message)
-      : toast.error(result.message);
+    if (result.success) {
+      toast.success(result.message);
+      setNoteCount(-1);
+      closeModal();
+    } else 
+    toast.error(result.message);
   } catch (error) {
     console.error();
   }

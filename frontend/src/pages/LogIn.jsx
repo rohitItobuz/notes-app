@@ -36,7 +36,10 @@ export default function LogIn() {
         localStorage.clear();
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("userDetails", JSON.stringify({username,email}));
+        localStorage.setItem(
+          "userDetails",
+          JSON.stringify({ username, email })
+        );
         navigate("/dashboard");
         toast.success(result.message);
       } else {

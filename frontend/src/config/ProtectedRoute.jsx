@@ -6,7 +6,7 @@ export const ProtectedRoute = () => {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
-    setAuthenticated(accessToken);
+    (accessToken === null || accessToken === '') ? setAuthenticated(false) : setAuthenticated(true);
   }, []);
 
   if (isAuthenticated === null) {

@@ -1,5 +1,5 @@
 import axios from "axios";
-export const getAllNote = async (filter, setNotes) => {
+export const getAllNote = async (filter, setNotes,setNoteCount) => {
   try {
     const { title, page, limit, sortby, order } = filter;
     const response = await axios.get(
@@ -14,6 +14,10 @@ export const getAllNote = async (filter, setNotes) => {
     const result = response.data;
     if (result.success) {
       setNotes(result.data);
+      setNoteCount(result.totalNote);
+    }else{
+      setNotes([]);
+      setNoteCount(0);
     }
   } catch (error) {
     console.error(error);

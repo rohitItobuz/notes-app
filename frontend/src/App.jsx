@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import LogIn from "./pages/LogIn";
-import { Note } from "./pages/Note";
 import SignUp from "./pages/SignUp";
 import Verify from "./pages/Verify";
 import Dashboard from "./pages/Dashboard";
@@ -22,7 +21,6 @@ const App = () => {
         <Route path="/login" element={<LogIn />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/email-verify/:token" element={<EmailVerify />} />
-        <Route path="/note" element={<Note />} />
       </Routes>
     </BrowserRouter>
   );
