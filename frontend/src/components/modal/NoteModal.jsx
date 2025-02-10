@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { MdDelete } from "react-icons/md";
-import { NotesContext } from "./NotesContext";
+import { NotesContext } from "../notes/NotesContext";
 import { FaFileUpload } from "react-icons/fa";
 import { useContext, useEffect } from "react";
 import { RxCrossCircled } from "react-icons/rx";
@@ -13,7 +13,7 @@ import { updateNote } from "../../config/noteCRUD/updateNote";
 import { notesValidationSchema } from "../../validator/notesValidationSchema";
 
 export const NoteModal = () => {
-  const { setNoteModal, noteId, setNoteId, setNoteCount, setDeleteModal } =
+  const { setNoteModal, noteId, setNoteId, setNoteCount, setDeleteModal, setFileModal } =
     useContext(NotesContext);
   const {
     register,
@@ -60,7 +60,9 @@ export const NoteModal = () => {
             autoComplete="off"
             {...register("title")}
           />
-          {errors.title && <p className="text-red-600 text-xs">{errors.title.message}</p>}
+          {errors.title && (
+            <p className="text-red-600 text-xs">{errors.title.message}</p>
+          )}
           <textarea
             className="outline-none scrollbar-none w-full grow mt-2 px-2 text-lg text-gray-600 resize-none scroll"
             placeholder="Your note content..."
@@ -68,14 +70,19 @@ export const NoteModal = () => {
             {...register("content")}
             style={{ overflow: "auto", scrollbarWidth: "none" }}
           />
-           {errors.content && <p className="text-red-600 text-xs">{errors.content.message}</p>}
+          {errors.content && (
+            <p className="text-red-600 text-xs">{errors.content.message}</p>
+          )}
           <div className="flex justify-end mt-4 gap-3">
-            <button
-              type="button"
-              className="px-4 py-2 bg-green-500 text-white rounded flex items-center"
-            >
-              <FaFileUpload className="mr-2" /> Upload
-            </button>
+            {noteId && (
+              <button
+                type="button"
+                className="px-4 py-2 bg-green-500 text-white rounded flex items-center"
+                onClick={() => setFileModal(true)}
+              >
+                <FaFileUpload className="mr-2" /> Upload
+              </button>
+            )}
             {noteId && (
               <button
                 type="button"

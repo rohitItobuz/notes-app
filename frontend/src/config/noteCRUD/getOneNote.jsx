@@ -1,14 +1,8 @@
-import axios from "axios";
+import axiosInstance from "../axios";
+
 export const getOneNote = async (noteId, reset) => {
   try {
-    const response = await axios.get(
-      `http://localhost:3000/notes/getOne/${noteId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }
-    );
+    const response = await axiosInstance.get(`notes/getOne/${noteId}`);
 
     const result = response.data;
     if (result.success) {

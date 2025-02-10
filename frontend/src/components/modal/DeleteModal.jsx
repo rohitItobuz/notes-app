@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { BsExclamationCircle } from "react-icons/bs";
 
-import { NotesContext } from "./NotesContext";
+import { NotesContext } from "../notes/NotesContext";
 import { deleteNote } from "../../config/noteCRUD/deleteNote";
 
 export const DeleteModal = () => {
