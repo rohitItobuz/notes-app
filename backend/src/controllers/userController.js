@@ -13,12 +13,13 @@ export const verificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const userPresent = await user.findOne({ email });
+    if (!userPresent) return errorMessage(res, 401, "You are not registered.");
     if (userPresent.isVerified)
       return errorMessage(res, 409, "You are already verified.");
     const token = jwt.sign({ id: userPresent._id }, process.env.secretKey, {
       expiresIn: "5m",
     });
-    mailSend(token, email);
+    await mailSend(token, email);
     return successMessage(
       res,
       201,
@@ -60,11 +61,9 @@ export const verifyEmail = async (req, res) => {
         );
       const id = decoded.id;
       const targetUser = await user.findById(id);
-      if (targetUser.isVerified)
-        return errorMessage(res, 409, "You are already verified.");
       targetUser.isVerified = true;
       await targetUser.save();
-      successMessage(res, "Email verified successfully");
+      successMessage(res, 200, "Email verified successfully");
     });
   } catch (err) {
     console.log(err);
@@ -94,8 +93,12 @@ export const login = async (req, res) => {
     await session.create({ userId: id, refreshToken });
     return res.json({
       status: 201,
-      refreshToken,
-      accessToken,
+      data: {
+        refreshToken,
+        accessToken,
+        email,
+        username: targetUser.username,
+      },
       message: "You logged in successfully",
       success: true,
     });
@@ -131,7 +134,7 @@ export const logoutAll = async (req, res) => {
   try {
     const userId = req.userId;
     await session.deleteMany({ userId });
-    successMessage(res, "Successfully deleted all sessions");
+    successMessage(res, 200, "Successfully deleted all sessions");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -144,7 +147,7 @@ export const logoutOne = async (req, res) => {
     const refreshToken = req.headers.authorization.replace("Bearer ", "");
     const targetUser = await session.findOneAndDelete({ userId, refreshToken });
     if (!targetUser) return errorMessage(res, 400, "Invalid refreshToken");
-    successMessage(res, "Successfully deleted one session");
+    successMessage(res, 200, "Successfully deleted one session");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -194,10 +197,7 @@ export const updatePassword = async (req, res) => {
     console.log(newPassword);
     const id = req.userId;
     const targetUser = await user.findById(id);
-    const passwordMatch = bcrypt.compareSync(
-      oldPassword,
-      targetUser.password
-    );
+    const passwordMatch = bcrypt.compareSync(oldPassword, targetUser.password);
     if (!passwordMatch) return errorMessage(res, 401, "Wrong password");
     targetUser.password = await bcrypt.hash(newPassword, 10);
     await targetUser.save();

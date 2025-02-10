@@ -13,12 +13,11 @@ export const EmailVerification = ({ message, success, status }) => {
         )}
       </h1>
       <p className="text-center text-lg">{message}</p>
-      {status !== 400 ? (
+      {success ? (
         <NavLinkSolid text="LOGIN" to="/login" bg="green"/>
       ) : (
         <NavLinkSolid text="TRY AGAIN" to="/verify" bg="red"/>
       )}
-      <p></p>
     </div>
   );
 };

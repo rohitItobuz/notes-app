@@ -5,10 +5,12 @@ import { FaFileUpload } from "react-icons/fa";
 import { useContext, useEffect } from "react";
 import { RxCrossCircled } from "react-icons/rx";
 import { FaCircleCheck } from "react-icons/fa6";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { getOneNote } from "../../config/noteCRUD/getOneNote";
 import { createNote } from "../../config/noteCRUD/createNote";
 import { updateNote } from "../../config/noteCRUD/updateNote";
+import { notesValidationSchema } from "../../validator/notesValidationSchema";
 
 export const NoteModal = () => {
   const { setNoteModal, noteId, setNoteId, setNoteCount, setDeleteModal } =
@@ -18,7 +20,9 @@ export const NoteModal = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(notesValidationSchema),
+  });
 
   const closeModal = () => {
     setNoteModal(false);
@@ -40,7 +44,7 @@ export const NoteModal = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50">
       <div className="bg-white md:rounded-lg shadow-lg w-full max-w-5xl h-screen md:h-5/6 md:m-4 flex flex-col">
-        <nav className="bg-blue-600 md:rounded-t-lg py-2 flex px-4 justify-between items-center">
+        <nav className="bg-blue-600 md:rounded-t-lg py-2 px-4 ">
           <button onClick={closeModal} className="text-white font-bold">
             {<RxCrossCircled size={30} />}
           </button>
@@ -56,6 +60,7 @@ export const NoteModal = () => {
             autoComplete="off"
             {...register("title")}
           />
+          {errors.title && <p className="text-red-600 text-xs">{errors.title.message}</p>}
           <textarea
             className="outline-none scrollbar-none w-full grow mt-2 px-2 text-lg text-gray-600 resize-none scroll"
             placeholder="Your note content..."
@@ -63,6 +68,7 @@ export const NoteModal = () => {
             {...register("content")}
             style={{ overflow: "auto", scrollbarWidth: "none" }}
           />
+           {errors.content && <p className="text-red-600 text-xs">{errors.content.message}</p>}
           <div className="flex justify-end mt-4 gap-3">
             <button
               type="button"

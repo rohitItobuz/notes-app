@@ -9,6 +9,7 @@ import { NoteModal } from "../components/notes/NoteModal";
 import { NotesContext } from "../components/notes/NotesContext";
 import { DeleteModal } from "../components/notes/DeleteModal";
 import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
+import { PageButton } from "../components/notes/PageButton";
 
 const Dashboard = () => {
   const [notes, setNotes] = useState([]);
@@ -24,9 +25,17 @@ const Dashboard = () => {
     order: "",
   });
 
+  const calculatePage = () => {
+    if (noteCount / filter.limit === 0 && filter.page !== 1)
+      setFilter((prev) => {
+        return { ...prev, page: prev.page - 1 };
+      });
+  };
+
   useEffect(() => {
+    calculatePage();
     getAllNote(filter, setNotes, setNoteCount);
-  }, [filter, noteCount]);
+  }, [filter, noteCount,noteModal]);
 
   return (
     <NotesContext.Provider
@@ -56,31 +65,36 @@ const Dashboard = () => {
 
       <button
         onClick={() => setNoteModal(true)}
-        className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-8 shadow-md"
+        className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-4 shadow-md"
       >
         <FaPlus color="white" size={30} />
       </button>
 
       {deleteModal && <DeleteModal />}
 
-      <div className="flex justify-center gap-1">
-        <button
-          type="button"
-          className="bg-blue-700 text-white rounded-l-md border-r border-gray-100 py-2 hover:bg-blue-900 px-3 flex items-center gap-4"
-          disabled = {filter.page === 1}
-          onClick={()=> console.log(filter.page,"we")}
-        >
-          {<HiArrowNarrowLeft size={20} />} Prev
-        </button>
-        <button
-          type="button"
-          className="bg-blue-700 text-white rounded-r-md border-r border-gray-100 py-2 hover:bg-blue-900 px-3 flex
-          items-center gap-4"
-          disabled = {noteCount/filter.limit === filter.page}
-          onClick={()=> console.log("s",noteCount)}
-        >
-          Next {<HiArrowNarrowRight size={20} />}
-        </button>
+      <div className="flex justify-center items-center gap-3 mx-3 my-5">
+        <PageButton
+          condition={filter.page === 1}
+          value={-1}
+          label={
+            <>
+              {" "}
+              <HiArrowNarrowLeft size={20} /> Prev
+            </>
+          }
+        />
+        <span className="font-semibold text-md">
+          {filter.page}/{Math.ceil(noteCount / filter.limit)} pages
+        </span>
+        <PageButton
+          condition={Math.ceil(noteCount / filter.limit) === filter.page}
+          value={1}
+          label={
+            <>
+              Next <HiArrowNarrowRight size={20} />
+            </>
+          }
+        />
       </div>
     </NotesContext.Provider>
   );

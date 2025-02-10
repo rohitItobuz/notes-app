@@ -24,7 +24,7 @@ import { profileUpload } from "../middlewares/multer.js";
 const userRoute = express.Router();
 
 userRoute.post("/email", verificationEmail);
-userRoute.get("/verify/:token", verifyEmail);
+userRoute.get("/verify", verifyEmail);
 userRoute.get("/regenerate-token", regenerateAccessToken);
 userRoute.delete("/logout-one", userAuthentication, logoutOne);
 userRoute.delete("/logout-all", userAuthentication, logoutAll);

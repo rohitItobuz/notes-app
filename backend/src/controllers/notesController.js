@@ -21,7 +21,7 @@ export const deleteNote = async (req, res) => {
   try {
     const targetNote = await note.findByIdAndDelete(req.params.id);
     if (!targetNote) return errorMessage(res, 404, "This note does not exist");
-    successMessage(res, "Successfully deleted one note");
+    successMessage(res, 200, "Successfully deleted one note");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -35,13 +35,13 @@ export const updateNote = async (req, res) => {
     const targetNote = await note.findById(req.params.id);
     if (!targetNote) return errorMessage(res, 404, "This note does not exist");
     const checkUnique = await note.findOne({ userId, title });
-    if (checkUnique)
+    if (checkUnique && checkUnique._id != req.params.id)
       return errorMessage(res, 409, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
     targetNote.date = Date.now();
     await targetNote.save();
-    successMessage(res, "Successfully edited one note");
+    successMessage(res, 200, "Successfully edited one note");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -71,19 +71,26 @@ export const getAllNotes = async (req, res) => {
     const page = req.query.page || 1;
     const sortby = req.query.sortby || "date";
     const order = req.query.order || "asc";
-    const limit = req.query.limit || 8;
+    const limit = req.query.limit || 6;
     const regexpTitle = new RegExp("^" + title);
     const offset = (page - 1) * limit;
     const targetNotes = await note
-      .find({ userId, title: regexpTitle })
+      .find(
+        { userId, title: regexpTitle },
+        {
+          userId: 0,
+        }
+      )
       .sort({ [sortby]: order })
       .skip(offset)
       .limit(limit);
     if (!targetNotes.length)
       return errorMessage(res, 404, "No such note is present.");
+    const totalNotes = await note.find({ userId });
     res.json({
       status: 201,
       data: targetNotes,
+      totalNotes : totalNotes.length,
       message: `Successfully fetch ${targetNotes.length} notes`,
       success: true,
     });

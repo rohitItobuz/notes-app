@@ -16,10 +16,9 @@ const EmailVerify = () => {
       });
       setRes(response.data);
     };
-    if(res === null) 
-      verify();
-  }, [res]);
-  console.log(res)
+    if (res === null) verify();
+    console.log(res);
+  }, []);
   return res ? <EmailVerification {...res} /> : <h1>Loading...</h1>;
 };
 

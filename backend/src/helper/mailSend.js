@@ -26,7 +26,7 @@ transporter.use(
   })
 );
 
-export const mailSend = (token, email) => {
+export const mailSend = async(token, email) => {
   const mailConfigurations = {
     from: process.env.serverEmail,
     to: email,
