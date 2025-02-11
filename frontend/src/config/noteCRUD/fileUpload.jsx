@@ -1,25 +1,30 @@
-import { toast } from "react-toastify";
 import axiosInstance from "../axios";
-import axios from "axios";
+import { toast } from "react-toastify";
 
 export const fileUpload = async (noteId, data, closeModal) => {
   try {
     const formData = new FormData();
-    formData.append("uploadedFile", data.name);
-    const response = await axios.post(`notes/upload/${noteId}`, {
-      headers: {
-        "content-type": "multipart/form-data",
-      },
-      data: formData,
-    });
+    formData.append("uploadedFile", data);
+
+    const response = await axiosInstance.post(
+      `notes/upload/${noteId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     const result = response.data;
-    console.log(result);
-    // if (result.success) {
-    //     toast.success(result.message);
-    //     closeModal();
-    // } else toast.error(result.message);
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
+    closeModal();
   } catch (error) {
-    console.error();
+    console.error("Error uploading file:", error);
+    toast.error("An error occurred while uploading the file.");
   }
 };

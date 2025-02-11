@@ -38,7 +38,7 @@ const Dashboard = () => {
   useEffect(() => {
     calculatePage();
     getAllNote(filter, setNotes, setNoteCount);
-  }, [filter, noteCount, noteModal]);
+  }, [filter, noteCount, noteModal, deleteModal]);
 
   return (
     <NotesContext.Provider
@@ -52,7 +52,8 @@ const Dashboard = () => {
         noteId,
         setNoteId,
         setNoteCount,
-        setFileModal
+        fileModal,
+        setFileModal,
       }}
     >
       <DashboardNavbar />

@@ -1,10 +1,11 @@
+import { FaEye } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { MdDelete } from "react-icons/md";
-import { NotesContext } from "../notes/NotesContext";
 import { FaFileUpload } from "react-icons/fa";
-import { useContext, useEffect } from "react";
 import { RxCrossCircled } from "react-icons/rx";
 import { FaCircleCheck } from "react-icons/fa6";
+import { NotesContext } from "../notes/NotesContext";
+import { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { getOneNote } from "../../config/noteCRUD/getOneNote";
@@ -13,8 +14,17 @@ import { updateNote } from "../../config/noteCRUD/updateNote";
 import { notesValidationSchema } from "../../validator/notesValidationSchema";
 
 export const NoteModal = () => {
-  const { setNoteModal, noteId, setNoteId, setNoteCount, setDeleteModal, setFileModal } =
-    useContext(NotesContext);
+  const {
+    setNoteModal,
+    noteId,
+    setNoteId,
+    setNoteCount,
+    setDeleteModal,
+    fileModal,
+    setFileModal,
+  } = useContext(NotesContext);
+  const [noteData, setNoteData] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -38,8 +48,10 @@ export const NoteModal = () => {
   };
 
   useEffect(() => {
-    if (noteId) getOneNote(noteId, reset);
-  }, [noteId, reset]);
+    if (noteId) {
+      getOneNote(noteId, reset, setNoteData);
+    }
+  }, [noteId, reset, fileModal]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50">
@@ -74,6 +86,15 @@ export const NoteModal = () => {
             <p className="text-red-600 text-xs">{errors.content.message}</p>
           )}
           <div className="flex justify-end mt-4 gap-3">
+            {noteId && noteData.file !== "" && (
+              <a
+                target="_blank"
+                href={`http://${noteData.file}`}
+                className="px-4 py-2 bg-amber-500 text-white rounded flex items-center"
+              >
+                <FaEye className="mr-2" /> File
+              </a>
+            )}
             {noteId && (
               <button
                 type="button"

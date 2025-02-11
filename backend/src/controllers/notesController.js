@@ -1,6 +1,7 @@
 import path from "path";
 import note from "../models/notesSchema.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
+import fs from "fs";
 
 export const createNote = async (req, res) => {
   try {
@@ -50,7 +51,9 @@ export const updateNote = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const targetNote = await note.findById(req.params.id);
+    const targetNote = await note.findById(req.params.id, {
+      userId: 0,
+    });
     if (!targetNote) return errorMessage(res, 404, "This note does not exist.");
     res.json({
       status: 201,
@@ -90,7 +93,7 @@ export const getAllNotes = async (req, res) => {
     res.json({
       status: 201,
       data: targetNotes,
-      totalNotes : totalNotes.length,
+      totalNotes: totalNotes.length,
       message: `Successfully fetch ${targetNotes.length} notes`,
       success: true,
     });
@@ -105,17 +108,17 @@ export const uploadFile = async (req, res) => {
     if (!req.file) return errorMessage(res, 415, "No file uploaded.");
     const targetNote = await note.findById(req.params.id);
     if (!targetNote) return errorMessage(res, 404, "This note is not exist");
+    const oldFilePath = targetNote.file.replace("localhost:3000/", "");
+    if (targetNote.file && fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
     targetNote.file = path.join(
-      "http://localhost:3000/uploads/note",
+      "localhost:3000/uploads/note",
       req.file.filename
     );
     targetNote.date = Date.now();
     await targetNote.save();
-    successMessage(
-      res,
-      201,
-      `File uploaded successfully: ${req.file.filename}`
-    );
+    successMessage(res, 201, `File uploaded successfully`);
   } catch (err) {
     console.log(err);
     errorMessage(res);

@@ -20,7 +20,8 @@ const notes = new Schema({
     default: Date.now,
   },
   file: {
-    type:String
+    type:String,
+    default:"",
   }
 });
 

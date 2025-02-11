@@ -7,7 +7,17 @@ import "./FormStyle.scss";
 import { FormErrorMsg } from "./FormErrorMsg";
 import { NavLinkTransparent } from "../nav/NavLinkTransparent";
 
-const Form = ({ heading, inputs, onSubmit, btnText, schema, subHeading, text, linkText, to, }) => {
+const Form = ({
+  heading,
+  inputs,
+  onSubmit,
+  btnText,
+  schema,
+  subHeading,
+  text,
+  linkText,
+  to,
+}) => {
   const {
     register,
     handleSubmit,
@@ -18,7 +28,7 @@ const Form = ({ heading, inputs, onSubmit, btnText, schema, subHeading, text, li
 
   return (
     <div className="bg-gradient-to-r from-violet-300 to-blue-300 h-screen flex justify-center items-center ">
-      <div className="items-center bg-gradient-to-r from-violet-800 to-blue-800 shadow-lg w-11/12 sm:w-9/12 md:w-5/6 xl:w-3/6 grid md:grid-cols-2">
+      <div className={`items-center bg-gradient-to-r from-violet-800 to-blue-800 shadow-lg w-11/12 sm:w-9/12 md:w-5/6 xl:w-3/6 grid ${btnText !== "UPDATE" &&'md:grid-cols-2'}`}>
         <div className="bg-white px-6 py-8 h-full">
           <h1 className="mb-6 font-bold text-center bg-gradient-to-r from-violet-800 to-blue-800 bg-clip-text text-transparent text-3xl md:text-4xl">
             {heading}
@@ -30,8 +40,9 @@ const Form = ({ heading, inputs, onSubmit, btnText, schema, subHeading, text, li
             {inputs.map((input, id) => (
               <div key={id} className="relative w-full">
                 <div
-                  className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 ${errors[input.inputName] ? "border-red-500" : ""
-                    }`}
+                  className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 ${
+                    errors[input.inputName] ? "border-red-500" : ""
+                  }`}
                 >
                   {input.icon}
                   <input
@@ -53,24 +64,27 @@ const Form = ({ heading, inputs, onSubmit, btnText, schema, subHeading, text, li
 
             <Button text={btnText} />
           </form>
-          <p className="text-center mt-3 text-gray-600">
-            {heading === "Verify" ? `Already` : `Not`} verified?
-            <NavLink
-              to={heading === "Verify" ? `/login` : `/verify`}
-              className="text-blue-400 hover:text-blue-500 font-semibold"
-            >
-              {heading === "Verify" ? ` Login` : ` Verify`} now
-            </NavLink>
-          </p>
+          {btnText !== "UPDATE" && (
+            <p className="text-center mt-3 text-gray-600">
+              {heading === "Verify" ? `Already` : `Not`} verified?
+              <NavLink
+                to={heading === "Verify" ? `/login` : `/verify`}
+                className="text-blue-400 hover:text-blue-500 font-semibold"
+              >
+                {heading === "Verify" ? ` Login` : ` Verify`} now
+              </NavLink>
+            </p>
+          )}
         </div>
-
-        <div className="flex flex-col items-center py-8 px-4">
-          <h1 className="font-semibold text-white text-center max-w-70 xl:max-w-96 text-4xl xl:text-5xl">
-            {subHeading} have an account?
-          </h1>
-          <p className="text-white opacity-80 mt-4 mb-10">{text}</p>
-          <NavLinkTransparent text={linkText} to={to} />
-        </div>
+        {btnText !== "UPDATE" && (
+          <div className="flex flex-col items-center py-8 px-4">
+            <h1 className="font-semibold text-white text-center max-w-70 xl:max-w-96 text-4xl xl:text-5xl">
+              {subHeading} have an account?
+            </h1>
+            <p className="text-white opacity-80 mt-4 mb-10">{text}</p>
+            <NavLinkTransparent text={linkText} to={to} />
+          </div>
+        )}
       </div>
     </div>
   );

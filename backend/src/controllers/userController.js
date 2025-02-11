@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
+import fs from "fs";
 import user from "../models/userSchema.js";
 import session from "../models/sessionSchema.js";
 import { mailSend } from "../helper/mailSend.js";
@@ -98,6 +99,7 @@ export const login = async (req, res) => {
         accessToken,
         email,
         username: targetUser.username,
+        profile: targetUser.profile,
       },
       message: "You logged in successfully",
       success: true,
@@ -158,17 +160,26 @@ export const uploadProfile = async (req, res) => {
   try {
     const id = req.userId;
     if (!req.file) return errorMessage(res, 400, "No file uploaded.");
+    const targetUser = await user.findById(id);
+    if (targetUser.profile !== "") {
+      const oldFilePath = targetUser.profile.replace(
+        "http:/localhost:3000/",
+        ""
+      );
+      fs.existsSync(oldFilePath) && fs.unlinkSync(oldFilePath);
+    }
     const fileName = path.join(
       "http://localhost:3000/uploads/user",
       req.file.filename
     );
     const result = await user.findByIdAndUpdate(id, { profile: fileName });
     if (!result) errorMessage(res, 400, "No file uploaded.");
-    successMessage(
-      res,
-      201,
-      `File uploaded successfully: ${req.file.filename}`
-    );
+    return res.json({
+      status: 201,
+      profile: result.profile,
+      message: "File uploaded successfully.",
+      success: true,
+    });
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -183,7 +194,7 @@ export const updateUsername = async (req, res) => {
     if (checkUsername)
       return errorMessage(res, 409, "Username is already present.");
     await user.findByIdAndUpdate(id, { username });
-    successMessage(res, 201, "Username changed successfully");
+    successMessage(res, 201, "Username changed successfully.");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -193,15 +204,13 @@ export const updateUsername = async (req, res) => {
 export const updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    console.log(oldPassword);
-    console.log(newPassword);
     const id = req.userId;
     const targetUser = await user.findById(id);
     const passwordMatch = bcrypt.compareSync(oldPassword, targetUser.password);
-    if (!passwordMatch) return errorMessage(res, 401, "Wrong password");
+    if (!passwordMatch) return errorMessage(res, 401, "Wrong password.");
     targetUser.password = await bcrypt.hash(newPassword, 10);
     await targetUser.save();
-    successMessage(res, 201, "Password changed successfully");
+    successMessage(res, 201, "Password changed successfully.");
   } catch (err) {
     console.log(err);
     errorMessage(res);

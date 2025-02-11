@@ -20,7 +20,8 @@ const user = new Schema({
     default: false
   },
   profile: {
-    type:String
+    type:String,
+    default:"",
   }
 });
 

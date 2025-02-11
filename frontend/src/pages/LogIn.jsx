@@ -32,13 +32,14 @@ export default function LogIn() {
       );
       const result = response.data;
       if (result.success) {
-        const { accessToken, refreshToken, username, email } = result.data;
+        const { accessToken, refreshToken, username, email, profile } =
+          result.data;
         localStorage.clear();
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem(
           "userDetails",
-          JSON.stringify({ username, email })
+          JSON.stringify({ username, email, profile })
         );
         navigate("/dashboard");
         toast.success(result.message);

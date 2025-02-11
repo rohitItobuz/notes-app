@@ -32,7 +32,7 @@ export const NoteCard = ({ noteDetails, index }) => {
           </button>
         </div>
       </div>
-      <p className="mx-3 text-lg text-gray-600 h-48 overflow-y-hidden break-words line-clamp-6 md:line-clamp-7 relative pb-2">
+      <p className="mx-3 text-lg text-gray-600 h-44 overflow-y-hidden break-words line-clamp-6 relative pt-1">
         {content}
       </p>
       <div className="p-3 font-thin text-gray-600 flex justify-between italic relative">

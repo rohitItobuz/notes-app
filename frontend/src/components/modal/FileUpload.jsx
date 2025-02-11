@@ -4,11 +4,10 @@ import { NotesContext } from "../notes/NotesContext";
 import { fileUpload } from "../../config/noteCRUD/fileUpload";
 
 export const FileModal = () => {
-  const { noteId, setNoteId, setFileModal } = useContext(NotesContext);
+  const { noteId, setFileModal } = useContext(NotesContext);
 
   const closeModal = () => {
     setFileModal(false);
-    setNoteId("");
   };
 
   function handleChange(event) {
