@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
 
@@ -11,6 +11,7 @@ import { NotesFilter } from "../components/notes/NotesFliter";
 import { NotesContext } from "../context/NotesContext";
 import { DashboardNavbar } from "../components/nav/DashboardNavbar";
 import notebook from "../assets/notebook.png";
+import {getAllNote} from '../config/noteCRUD/getAllNote';
 
 const Dashboard = () => {
   const {
@@ -20,15 +21,45 @@ const Dashboard = () => {
     deleteModal,
     fileModal,
     notes,
+    setFilter,
     noteCount,
+    setNotes,
+    setNoteCount,
   } = useContext(NotesContext);
+
+  const calculatePage = () => {
+    if (noteCount / filter.limit === 0 && filter.page !== 1)
+      setFilter((prev) => {
+        return { ...prev, page: prev.page - 1 };
+      });
+  };
+
+  useEffect(() => {
+    calculatePage();
+    getAllNote(filter, setNotes, setNoteCount);
+  }, [
+    noteModal,
+    deleteModal,
+    filter.limit,
+    filter.order,
+    filter.page,
+    filter.sortby,
+  ]);
+
+  useEffect(() => {
+    const getData = setTimeout(() => {
+      calculatePage();
+      getAllNote(filter, setNotes, setNoteCount);
+    }, 1000);
+    return () => clearTimeout(getData);
+  }, [filter.title]);
 
   return (
     <>
       <DashboardNavbar />
 
       <NotesFilter />
-      
+
       <div className="m-3 md:mx-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
         {notes.map((note, i) => (
           <NoteCard noteDetails={note} index={i % 6} key={note._id} />

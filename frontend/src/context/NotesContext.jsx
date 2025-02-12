@@ -1,6 +1,4 @@
-import { createContext, useEffect, useState } from "react";
-
-import {getAllNote} from '../config/noteCRUD/getAllNote';
+import { createContext, useState } from "react";
 
 export const NotesContext = createContext();
 
@@ -19,33 +17,6 @@ export const NotesProvider = ({ children }) => {
     order: "",
   });
 
-  const calculatePage = () => {
-    if (noteCount / filter.limit === 0 && filter.page !== 1)
-      setFilter((prev) => {
-        return { ...prev, page: prev.page - 1 };
-      });
-  };
-
-  useEffect(() => {
-    calculatePage();
-    getAllNote(filter, setNotes, setNoteCount);
-  }, [
-    noteModal,
-    deleteModal,
-    filter.limit,
-    filter.order,
-    filter.page,
-    filter.sortby,
-  ]);
-
-  useEffect(() => {
-    const getData = setTimeout(() => {
-      calculatePage();
-      getAllNote(filter, setNotes, setNoteCount);
-    }, 1000);
-    return () => clearTimeout(getData);
-  }, [filter.title]);
-
   return (
     <NotesContext.Provider
       value={{
@@ -61,6 +32,7 @@ export const NotesProvider = ({ children }) => {
         fileModal,
         notes,
         setFileModal,
+        setNotes,
         noteCount
       }}
     >
