@@ -4,25 +4,30 @@ const user = new Schema({
   email: {
     type: String,
     required: true,
-    unique:true
+    unique: true,
   },
-  username:{
+  username: {
     type: String,
     required: true,
-    unique:true
+    unique: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   profile: {
-    type:String,
-    default:"",
-  }
+    type: String,
+    default: "",
+  },
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
 });
 
 export default mongoose.model("notesUser", user);

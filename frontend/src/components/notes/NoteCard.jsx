@@ -7,13 +7,13 @@ import { NotesContext } from "../../context/NotesContext";
 export const NoteCard = ({ noteDetails, index }) => {
   const { _id, content, date, title } = noteDetails;
   const { setNoteModal, setNoteId, setDeleteModal } = useContext(NotesContext);
-  const color = ["cyan", "fuchsia", "blue", "violet", "sky", "purple"];
-  
+  const color = ["#a5f3fc", "#f5d0fe", "#bfdbfe", "#ddd6fe", "#bae6fd", "#e9d5ff"];
+
   const toggleNoteModal = () => {
     setNoteModal(true);
     setNoteId(_id);
   };
-  
+
   const toggleDeleteModal = () => {
     setDeleteModal(true);
     setNoteId(_id);
@@ -21,7 +21,8 @@ export const NoteCard = ({ noteDetails, index }) => {
 
   return (
     <div
-      className={`relative md:p-3 overflow-hidden rounded-lg bg-${color[index]}-200 hover:scale-[1.01] transition-all duration-300 after:content-[''] after:w-1 after:h-full after:bg-${color[index]}-300 after:absolute after:top-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 after:-z-10`}
+      className={`relative md:p-3 overflow-hidden rounded-lg hover:scale-[1.01] transition-all duration-300 after:content-[''] after:w-1 after:h-full after:absolute after:top-0 after:left-0 hover:after:w-full after:transition-all after:duration-300 after:-z-10 noteCard after:bg-gray-100 after:opacity-30`}
+      style={{ backgroundColor: `${color[index]}` }}
     >
       <div className="flex items-center justify-between relative">
         <p className="p-3 text-gray-700 text-xl font-bold truncate">{title}</p>

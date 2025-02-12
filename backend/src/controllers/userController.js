@@ -17,9 +17,13 @@ export const verificationEmail = async (req, res) => {
     if (!userPresent) return errorMessage(res, 401, "You are not registered.");
     if (userPresent.isVerified)
       return errorMessage(res, 409, "You are already verified.");
-    const token = jwt.sign({ id: userPresent._id }, process.env.secretKey, {
-      expiresIn: "5m",
-    });
+    const token = jwt.sign(
+      { id: userPresent._id, role: userPresent.role },
+      process.env.secretKey,
+      {
+        expiresIn: "5m",
+      }
+    );
     await mailSend(token, email);
     return successMessage(
       res,
@@ -34,7 +38,8 @@ export const verificationEmail = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, role } = req.body;
+    const userRole = role === "admin" ? "admin" : "user";
     const encryptedPass = await bcrypt.hash(password, 10);
     const userPresent = await user.findOne({ email });
     if (userPresent)
@@ -42,7 +47,12 @@ export const register = async (req, res) => {
     const checkUsername = await user.findOne({ username });
     if (checkUsername)
       return errorMessage(res, 409, "Username is already present.");
-    await user.create({ email, password: encryptedPass, username });
+    await user.create({
+      email,
+      password: encryptedPass,
+      username,
+      role: userRole,
+    });
     verificationEmail(req, res);
   } catch (err) {
     console.log(err);
