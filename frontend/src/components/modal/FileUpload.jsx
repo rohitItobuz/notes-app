@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { NotesContext } from "../notes/NotesContext";
+import { NotesContext } from "../../context/NotesContext";
 import { fileUpload } from "../../config/noteCRUD/fileUpload";
 
 export const FileModal = () => {

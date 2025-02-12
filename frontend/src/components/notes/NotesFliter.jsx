@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 
-import { NotesContext } from "./NotesContext";
+import { NotesContext } from "../../context/NotesContext";
 import { useContext } from "react";
 
 export const NotesFilter = () => {

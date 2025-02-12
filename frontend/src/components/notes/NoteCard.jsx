@@ -2,16 +2,18 @@ import { useContext } from "react";
 import { IoOpen } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 
-import { NotesContext } from "./NotesContext";
+import { NotesContext } from "../../context/NotesContext";
 
 export const NoteCard = ({ noteDetails, index }) => {
   const { _id, content, date, title } = noteDetails;
   const { setNoteModal, setNoteId, setDeleteModal } = useContext(NotesContext);
   const color = ["cyan", "fuchsia", "blue", "violet", "sky", "purple"];
+  
   const toggleNoteModal = () => {
     setNoteModal(true);
     setNoteId(_id);
   };
+  
   const toggleDeleteModal = () => {
     setDeleteModal(true);
     setNoteId(_id);

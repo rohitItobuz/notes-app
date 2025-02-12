@@ -7,10 +7,11 @@ export const createNote = async (req, res) => {
   try {
     const { title, content } = req.body;
     const userId = req.userId;
+    const date = Date.now() + 330 * 60000;
     const targetNote = await note.findOne({ userId, title });
     if (targetNote)
       return errorMessage(res, 409, "Note with this title is already present");
-    await note.create({ userId, title, content });
+    await note.create({ userId, title, content, date });
     return successMessage(res, 201, "One note has been successfully created.");
   } catch (err) {
     console.log(err);
@@ -40,7 +41,7 @@ export const updateNote = async (req, res) => {
       return errorMessage(res, 409, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
-    targetNote.date = Date.now();
+    targetNote.date = Date.now() + 330 * 60000;
     await targetNote.save();
     successMessage(res, 200, "Successfully edited one note");
   } catch (err) {
@@ -73,7 +74,7 @@ export const getAllNotes = async (req, res) => {
     const title = req.query.title || "";
     const page = req.query.page || 1;
     const sortby = req.query.sortby || "date";
-    const order = req.query.order || "asc";
+    const order = req.query.order || "desc";
     const limit = req.query.limit || 6;
     const regexpTitle = new RegExp("^" + title);
     const offset = (page - 1) * limit;
@@ -116,7 +117,7 @@ export const uploadFile = async (req, res) => {
       "localhost:3000/uploads/note",
       req.file.filename
     );
-    targetNote.date = Date.now();
+    targetNote.date = Date.now() + 330 * 60000;
     await targetNote.save();
     successMessage(res, 201, `File uploaded successfully`);
   } catch (err) {

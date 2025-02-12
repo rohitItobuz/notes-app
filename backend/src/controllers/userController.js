@@ -176,7 +176,7 @@ export const uploadProfile = async (req, res) => {
     if (!result) errorMessage(res, 400, "No file uploaded.");
     return res.json({
       status: 201,
-      profile: result.profile,
+      profile: fileName,
       message: "File uploaded successfully.",
       success: true,
     });
@@ -207,7 +207,8 @@ export const updatePassword = async (req, res) => {
     const id = req.userId;
     const targetUser = await user.findById(id);
     const passwordMatch = bcrypt.compareSync(oldPassword, targetUser.password);
-    if (!passwordMatch) return errorMessage(res, 401, "Wrong password.");
+    console.log(passwordMatch);
+    if (!passwordMatch) return errorMessage(res, 400, "Wrong password.");
     targetUser.password = await bcrypt.hash(newPassword, 10);
     await targetUser.save();
     successMessage(res, 201, "Password changed successfully.");

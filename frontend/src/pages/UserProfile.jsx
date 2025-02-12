@@ -1,17 +1,18 @@
-import axiosInstance from "../config/axios";
+import { useContext } from "react";
 import { toast } from "react-toastify";
+import { FaUser } from "react-icons/fa";
 import { LuUserPen } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import default_profile_pic from "../assets/default_profile_pic.webp";
-import { FormErrorMsg } from "../components/form/FormErrorMsg";
-import { FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import axiosInstance from "../config/axios";
 import { Button } from "../components/Button";
+import { UserContext } from "../context/UserContext";
+import { NavLinkSolid } from "../components/nav/NavLinkSolid";
+import { FormErrorMsg } from "../components/form/FormErrorMsg";
+import default_profile_pic from "../assets/default_profile_pic.webp";
 import { changeUsernameSchema } from "../validator/userValidationSchema";
-import { UserContext, UserProvider } from "../context/UserContext";
 
 export const UserProfile = () => {
   const {
@@ -20,13 +21,7 @@ export const UserProfile = () => {
     changeUsername,
     editUsername,
     setEditUsername,
-    setUserDetails,
   } = useContext(UserContext);
-
-  useEffect(()=>{
-    const userData = localStorage.getItem("userDetails");
-    (userData && userData!=='') && setUserDetails(JSON.parse(userData));
-  },[])
 
   const navigate = useNavigate();
   const {
@@ -60,7 +55,11 @@ export const UserProfile = () => {
         <div className="flex flex-col items-center">
           <label className="cursor-pointer relative">
             <img
-              src={default_profile_pic}
+              src={
+                userDetails.profile === ""
+                  ? default_profile_pic
+                  : userDetails.profile.replace('http:/','http://')
+              }
               className="w-48 h-48 rounded-full border border-gray-300 object-cover"
               alt="Profile"
             />
@@ -77,7 +76,7 @@ export const UserProfile = () => {
           {editUsername && (
             <form onSubmit={handleSubmit(changeUsername)}>
               <div
-                className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 my-3 ${
+                className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 mt-3 mb-6 ${
                   errors.username ? "border-red-500" : ""
                 }`}
               >
@@ -89,13 +88,13 @@ export const UserProfile = () => {
                   autoComplete="off"
                   {...register("username")}
                 />
-                <label className="absolute text-sm form-label left-9 bg-white text-zinc-500 px-3">
+                <label className="absolute text-sm form-label left-9 bg-gradient-to-r from-rose-100 to-rose-50 text-zinc-500 px-3">
                   New username
                 </label>
-              </div>
               {errors.username && (
                 <FormErrorMsg msg={errors.username.message} />
               )}
+              </div>
 
               <Button text={"UPDATE"} />
             </form>
@@ -130,6 +129,10 @@ export const UserProfile = () => {
           >
             Logout from All Devices
           </button>
+        </div>
+        <div className="mt-8 text-center">
+
+        <NavLinkSolid text="Go to dashboard &#10142;" to="/dashboard"/>
         </div>
       </div>
     </div>

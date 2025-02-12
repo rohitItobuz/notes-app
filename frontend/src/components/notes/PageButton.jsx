@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { NotesContext } from "./NotesContext";
+import { NotesContext } from "../../context/NotesContext";
 
 export const PageButton = ({ condition, value, label }) => {
   const { setFilter } = useContext(NotesContext);

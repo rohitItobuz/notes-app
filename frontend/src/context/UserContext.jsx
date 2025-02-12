@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import axiosInstance from "../config/axios";
 import { toast } from "react-toastify";
 
@@ -6,9 +6,9 @@ const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
   const [userDetails, setUserDetails] = useState({
-    "username":"",
-    "email":"",
-    "profile":""
+    username: "",
+    email: "",
+    profile: "",
   });
   const [editUsername, setEditUsername] = useState(false);
 
@@ -16,7 +16,7 @@ const UserProvider = ({ children }) => {
     const data = JSON.parse(localStorage.getItem("userDetails"));
     const newData = { ...data, [key]: value };
     setUserDetails(newData);
-    localStorage.setItem("userDetails",JSON.stringify(newData));
+    localStorage.setItem("userDetails", JSON.stringify(newData));
   };
 
   const uploadProfilePic = async (event) => {
@@ -33,7 +33,6 @@ const UserProvider = ({ children }) => {
       const result = response.data;
       if (result.success) {
         toast.success(result.message);
-        console.log(result)
         updateUserDetails("profile", result.profile);
       } else {
         toast.error(result.message);
@@ -61,10 +60,10 @@ const UserProvider = ({ children }) => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const userData = localStorage.getItem("userDetails");
-    (userData || userData!=='') && setUserDetails(userData);
-  },[])
+    userData && userData !== "" && setUserDetails(JSON.parse(userData));
+  }, []);
 
   return (
     <UserContext.Provider
@@ -74,13 +73,12 @@ const UserProvider = ({ children }) => {
         uploadProfilePic,
         changeUsername,
         editUsername,
-        setEditUsername
+        setEditUsername,
       }}
     >
       {children}
     </UserContext.Provider>
   );
 };
-
 
 export { UserProvider, UserContext };

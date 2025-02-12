@@ -4,7 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { FaFileUpload } from "react-icons/fa";
 import { RxCrossCircled } from "react-icons/rx";
 import { FaCircleCheck } from "react-icons/fa6";
-import { NotesContext } from "../notes/NotesContext";
+import { NotesContext } from "../../context/NotesContext";
 import { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 

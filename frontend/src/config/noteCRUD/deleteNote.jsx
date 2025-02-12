@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../axios";
 
-export const deleteNote = async (noteId, setNoteCount, closeModal) => {
+export const deleteNote = async (noteId, closeModal) => {
   try {
     const response = await axiosInstance.delete(`notes/delete/${noteId}`);
 

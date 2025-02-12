@@ -1,64 +1,34 @@
+import { useContext } from "react";
 import { FaPlus } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
 
 import { NoteCard } from "../components/notes/NoteCard";
-import { getAllNote } from "../config/noteCRUD/getAllNote";
 import { NoteModal } from "../components/modal/NoteModal";
 import { FileModal } from "../components/modal/FileUpload";
 import { PageButton } from "../components/notes/PageButton";
 import { DeleteModal } from "../components/modal/DeleteModal";
 import { NotesFilter } from "../components/notes/NotesFliter";
-import { NotesContext } from "../components/notes/NotesContext";
+import { NotesContext } from "../context/NotesContext";
 import { DashboardNavbar } from "../components/nav/DashboardNavbar";
-import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
 import notebook from "../assets/notebook.png";
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState([]);
-  const [noteModal, setNoteModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [fileModal, setFileModal] = useState(false);
-  const [noteId, setNoteId] = useState("");
-  const [noteCount, setNoteCount] = useState(0);
-  const [filter, setFilter] = useState({
-    title: "",
-    page: 1,
-    limit: 6,
-    sortby: "",
-    order: "",
-  });
-
-  const calculatePage = () => {
-    if (noteCount / filter.limit === 0 && filter.page !== 1)
-      setFilter((prev) => {
-        return { ...prev, page: prev.page - 1 };
-      });
-  };
-
-  useEffect(() => {
-    calculatePage();
-    getAllNote(filter, setNotes, setNoteCount);
-  }, [filter, noteCount, noteModal, deleteModal]);
+  const {
+    filter,
+    noteModal,
+    setNoteModal,
+    deleteModal,
+    fileModal,
+    notes,
+    noteCount,
+  } = useContext(NotesContext);
 
   return (
-    <NotesContext.Provider
-      value={{
-        filter,
-        setFilter,
-        noteModal,
-        setNoteModal,
-        deleteModal,
-        setDeleteModal,
-        noteId,
-        setNoteId,
-        setNoteCount,
-        fileModal,
-        setFileModal,
-      }}
-    >
+    <>
       <DashboardNavbar />
 
       <NotesFilter />
+      
       <div className="m-3 md:mx-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
         {notes.map((note, i) => (
           <NoteCard noteDetails={note} index={i % 6} key={note._id} />
@@ -69,14 +39,14 @@ const Dashboard = () => {
 
       {fileModal && <FileModal />}
 
+      {deleteModal && <DeleteModal />}
+
       <button
         onClick={() => setNoteModal(true)}
         className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-4 shadow-md"
       >
         <FaPlus color="white" size={30} />
       </button>
-
-      {deleteModal && <DeleteModal />}
 
       {noteCount === 0 && (
         <div className="flex flex-col items-center">
@@ -93,13 +63,13 @@ const Dashboard = () => {
             value={-1}
             label={
               <>
-                {" "}
                 <HiArrowNarrowLeft size={20} /> Prev
               </>
             }
           />
           <span className="font-semibold text-md">
-            {filter.page}/{Math.ceil(noteCount / filter.limit)} pages
+            {filter.page}/
+            {Math.ceil(noteCount / (Number(filter.limit) || noteCount))} pages
           </span>
           <PageButton
             condition={Math.ceil(noteCount / filter.limit) === filter.page}
@@ -112,7 +82,7 @@ const Dashboard = () => {
           />
         </div>
       )}
-    </NotesContext.Provider>
+    </>
   );
 };
 
