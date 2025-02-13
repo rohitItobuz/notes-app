@@ -9,7 +9,9 @@ const UserProvider = ({ children }) => {
     username: "",
     email: "",
     profile: "",
+    role: "",
   });
+  const [isLoggedIn, setLoggedIn] = useState(false);
   const [editUsername, setEditUsername] = useState(false);
 
   const updateUserDetails = (key, value) => {
@@ -60,11 +62,6 @@ const UserProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const userData = localStorage.getItem("userDetails");
-    userData && userData !== "" && setUserDetails(JSON.parse(userData));
-  }, []);
-
   return (
     <UserContext.Provider
       value={{
@@ -74,6 +71,8 @@ const UserProvider = ({ children }) => {
         changeUsername,
         editUsername,
         setEditUsername,
+        isLoggedIn,
+        setLoggedIn,
       }}
     >
       {children}

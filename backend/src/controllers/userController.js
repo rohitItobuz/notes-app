@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 import fs from "fs";
+
 import user from "../models/userSchema.js";
 import session from "../models/sessionSchema.js";
 import { mailSend } from "../helper/mailSend.js";
@@ -38,8 +39,7 @@ export const verificationEmail = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { email, password, username, role } = req.body;
-    const userRole = role === "admin" ? "admin" : "user";
+    const { email, password, username } = req.body;
     const encryptedPass = await bcrypt.hash(password, 10);
     const userPresent = await user.findOne({ email });
     if (userPresent)
@@ -47,12 +47,7 @@ export const register = async (req, res) => {
     const checkUsername = await user.findOne({ username });
     if (checkUsername)
       return errorMessage(res, 409, "Username is already present.");
-    await user.create({
-      email,
-      password: encryptedPass,
-      username,
-      role: userRole,
-    });
+    await user.create({ email, password: encryptedPass, username });
     verificationEmail(req, res);
   } catch (err) {
     console.log(err);
@@ -95,12 +90,20 @@ export const login = async (req, res) => {
     if (!passwordMatch) return errorMessage(res, 401, "Invalid credentials");
 
     const id = targetUser._id;
-    const refreshToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "15d",
-    });
-    const accessToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "30m",
-    });
+    const refreshToken = jwt.sign(
+      { id, role: targetUser.role },
+      process.env.secretKey,
+      {
+        expiresIn: "15d",
+      }
+    );
+    const accessToken = jwt.sign(
+      { id, role: targetUser.role },
+      process.env.secretKey,
+      {
+        expiresIn: "30m",
+      }
+    );
     await session.create({ userId: id, refreshToken });
     return res.json({
       status: 201,
@@ -110,6 +113,7 @@ export const login = async (req, res) => {
         email,
         username: targetUser.username,
         profile: targetUser.profile,
+        role: targetUser.role,
       },
       message: "You logged in successfully",
       success: true,
@@ -125,8 +129,8 @@ export const regenerateAccessToken = (req, res) => {
     const token = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
       if (err) return errorMessage(res, 400, err.message);
-      const id = decoded.id;
-      const accessToken = jwt.sign({ id }, process.env.secretKey, {
+      const { id, role } = decoded;
+      const accessToken = jwt.sign({ id, role }, process.env.secretKey, {
         expiresIn: "30m",
       });
       return res.json({
@@ -144,7 +148,7 @@ export const regenerateAccessToken = (req, res) => {
 
 export const logoutAll = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.body.userId;
     await session.deleteMany({ userId });
     successMessage(res, 200, "Successfully deleted all sessions");
   } catch (err) {
@@ -155,7 +159,7 @@ export const logoutAll = async (req, res) => {
 
 export const logoutOne = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.body.userId;
     const refreshToken = req.headers.authorization.replace("Bearer ", "");
     const targetUser = await session.findOneAndDelete({ userId, refreshToken });
     if (!targetUser) return errorMessage(res, 400, "Invalid refreshToken");
@@ -168,7 +172,7 @@ export const logoutOne = async (req, res) => {
 
 export const uploadProfile = async (req, res) => {
   try {
-    const id = req.userId;
+    const id = req.body.userId;
     if (!req.file) return errorMessage(res, 400, "No file uploaded.");
     const targetUser = await user.findById(id);
     if (targetUser.profile !== "") {
@@ -198,12 +202,12 @@ export const uploadProfile = async (req, res) => {
 
 export const updateUsername = async (req, res) => {
   try {
-    const { username } = req.body;
-    const id = req.userId;
+    const { username, userId } = req.body;
     const checkUsername = await user.findOne({ username });
-    if (checkUsername)
+    if (checkUsername?._id.toString() !== userId)
       return errorMessage(res, 409, "Username is already present.");
-    await user.findByIdAndUpdate(id, { username });
+    const targetUser = await user.findByIdAndUpdate(userId, { username });
+    if (!targetUser) return errorMessage(res, 409, "Username not changed");
     successMessage(res, 201, "Username changed successfully.");
   } catch (err) {
     console.log(err);
@@ -214,7 +218,7 @@ export const updateUsername = async (req, res) => {
 export const updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const id = req.userId;
+    const id = req.body.userId;
     const targetUser = await user.findById(id);
     const passwordMatch = bcrypt.compareSync(oldPassword, targetUser.password);
     console.log(passwordMatch);

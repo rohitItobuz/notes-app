@@ -5,8 +5,7 @@ import fs from "fs";
 
 export const createNote = async (req, res) => {
   try {
-    const { title, content } = req.body;
-    const userId = req.userId;
+    const { title, content, userId } = req.body;
     const date = Date.now() + 330 * 60000;
     const targetNote = await note.findOne({ userId, title });
     if (targetNote)
@@ -32,12 +31,11 @@ export const deleteNote = async (req, res) => {
 
 export const updateNote = async (req, res) => {
   try {
-    const { title, content } = req.body;
-    const userId = req.userId;
+    const { title, content, userId } = req.body;
     const targetNote = await note.findById(req.params.id);
     if (!targetNote) return errorMessage(res, 404, "This note does not exist");
     const checkUnique = await note.findOne({ userId, title });
-    if (checkUnique && checkUnique._id != req.params.id)
+    if (checkUnique?._id.toString() !== req.params.id)
       return errorMessage(res, 409, "Note with this title is already present.");
     targetNote.title = title;
     targetNote.content = content;
@@ -52,9 +50,9 @@ export const updateNote = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const targetNote = await note.findById(req.params.id, {
-      userId: 0,
-    });
+    const targetNote = await note
+      .findById(req.params.id)
+      .populate({ path: "userId", select: { username: 1, _id: 0 } });
     if (!targetNote) return errorMessage(res, 404, "This note does not exist.");
     res.json({
       status: 201,
@@ -70,7 +68,7 @@ export const getOne = async (req, res) => {
 
 export const getAllNotes = async (req, res) => {
   try {
-    const userId = req.userId;
+    const { userId, role } = req.body;
     const title = req.query.title || "";
     const page = req.query.page || 1;
     const sortby = req.query.sortby || "date";
@@ -80,17 +78,24 @@ export const getAllNotes = async (req, res) => {
     const offset = (page - 1) * limit;
     const targetNotes = await note
       .find(
-        { userId, title: regexpTitle },
-        {
-          userId: 0,
-        }
+        role === "admin"
+          ? { title: regexpTitle }
+          : { userId, title: regexpTitle }
       )
       .sort({ [sortby]: order })
       .skip(offset)
-      .limit(limit);
+      .limit(limit)
+      .populate({ path: "userId", select: { username: 1, _id: 0 } });
+
     if (!targetNotes.length)
       return errorMessage(res, 404, "No such note is present.");
-    const totalNotes = await note.find({ userId });
+
+    const totalNotes = await note.find(
+      role === "admin"
+        ? { title: regexpTitle }
+        : { userId, title: regexpTitle }
+    );
+
     res.json({
       status: 201,
       data: targetNotes,
@@ -108,7 +113,7 @@ export const uploadFile = async (req, res) => {
   try {
     if (!req.file) return errorMessage(res, 415, "No file uploaded.");
     const targetNote = await note.findById(req.params.id);
-    if (!targetNote) return errorMessage(res, 404, "This note is not exist");
+    if (!targetNote) return errorMessage(res, 404, "This note does not exist");
     const oldFilePath = targetNote.file.replace("localhost:3000/", "");
     if (targetNote.file && fs.existsSync(oldFilePath)) {
       fs.unlinkSync(oldFilePath);

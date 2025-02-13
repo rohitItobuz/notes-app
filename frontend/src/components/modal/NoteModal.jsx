@@ -54,7 +54,7 @@ export const NoteModal = () => {
   }, [noteId, reset, fileModal]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50 z-50">
       <div className="bg-white md:rounded-lg shadow-lg w-full max-w-5xl h-screen md:h-5/6 md:m-4 flex flex-col">
         <nav className="bg-blue-600 md:rounded-t-lg py-2 px-4 ">
           <button onClick={closeModal} className="text-white font-bold">

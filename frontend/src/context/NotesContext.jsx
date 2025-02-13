@@ -33,7 +33,7 @@ export const NotesProvider = ({ children }) => {
         notes,
         setFileModal,
         setNotes,
-        noteCount
+        noteCount,
       }}
     >
       {children}

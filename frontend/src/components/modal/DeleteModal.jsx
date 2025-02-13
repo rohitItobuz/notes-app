@@ -15,7 +15,7 @@ export const DeleteModal = () => {
     setNoteId("");
   };
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-50">
       <div className="bg-white p-4 m-2 rounded-lg shadow-xl max-w-96 flex flex-col items-center">
         <div className="w-full text-right">
           <button type="button" onClick={closeModal}>

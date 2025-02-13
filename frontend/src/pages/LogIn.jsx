@@ -24,7 +24,6 @@ export default function LogIn() {
   const navigate = useNavigate();
   const onSubmit = async (data, e) => {
     e.target.reset();
-
     try {
       const response = await axios.post(
         "http://localhost:3000/user/login",
@@ -32,14 +31,14 @@ export default function LogIn() {
       );
       const result = response.data;
       if (result.success) {
-        const { accessToken, refreshToken, username, email, profile } =
+        const { accessToken, refreshToken, username, email, profile, role } =
           result.data;
         localStorage.clear();
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem(
           "userDetails",
-          JSON.stringify({ username, email, profile })
+          JSON.stringify({ username, email, profile, role })
         );
         navigate("/dashboard");
         toast.success(result.message);

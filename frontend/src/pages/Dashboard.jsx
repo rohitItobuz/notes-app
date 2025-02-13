@@ -11,7 +11,8 @@ import { NotesFilter } from "../components/notes/NotesFliter";
 import { NotesContext } from "../context/NotesContext";
 import { DashboardNavbar } from "../components/nav/DashboardNavbar";
 import notebook from "../assets/notebook.png";
-import {getAllNote} from '../config/noteCRUD/getAllNote';
+import { getAllNote } from "../config/noteCRUD/getAllNote";
+import { UserContext } from "../context/UserContext";
 
 const Dashboard = () => {
   const {
@@ -27,12 +28,19 @@ const Dashboard = () => {
     setNoteCount,
   } = useContext(NotesContext);
 
+  const { setUserDetails } = useContext(UserContext);
+
   const calculatePage = () => {
     if (noteCount / filter.limit === 0 && filter.page !== 1)
       setFilter((prev) => {
         return { ...prev, page: prev.page - 1 };
       });
   };
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userDetails");
+    userData && userData !== "" && setUserDetails(JSON.parse(userData));
+  }, []);
 
   useEffect(() => {
     calculatePage();

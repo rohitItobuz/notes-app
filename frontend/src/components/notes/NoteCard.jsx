@@ -5,9 +5,16 @@ import { MdDelete } from "react-icons/md";
 import { NotesContext } from "../../context/NotesContext";
 
 export const NoteCard = ({ noteDetails, index }) => {
-  const { _id, content, date, title } = noteDetails;
+  const { _id, content, date, title, userId } = noteDetails;
   const { setNoteModal, setNoteId, setDeleteModal } = useContext(NotesContext);
-  const color = ["#a5f3fc", "#f5d0fe", "#bfdbfe", "#ddd6fe", "#bae6fd", "#e9d5ff"];
+  const color = [
+    "#a5f3fc",
+    "#f5d0fe",
+    "#bfdbfe",
+    "#ddd6fe",
+    "#bae6fd",
+    "#e9d5ff",
+  ];
 
   const toggleNoteModal = () => {
     setNoteModal(true);
@@ -39,8 +46,10 @@ export const NoteCard = ({ noteDetails, index }) => {
         {content}
       </p>
       <div className="p-3 font-thin text-gray-600 flex justify-between italic relative">
-        <span>{date.slice(0, 10)}</span>
-        <span>{date.slice(11, 16)}</span>
+        <span>
+          {date.slice(11, 16)}, {date.slice(0, 10)}
+        </span>
+        <span className="px-3 py-1 rounded-3xl bg-gray-100 font-semibold max-w-44 truncate">{userId.username}</span>
       </div>
     </div>
   );
