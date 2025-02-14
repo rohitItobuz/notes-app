@@ -12,6 +12,7 @@ import { UserProfile } from "./pages/UserProfile";
 import { PasswordChange } from "./pages/PasswordChange";
 import { UserProvider } from "./context/UserContext";
 import { NotesProvider } from "./context/NotesContext";
+import Admin from "./pages/Admin";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route element={<ProtectedRoute />}>
+              <Route path="/admin" element={<Admin />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>

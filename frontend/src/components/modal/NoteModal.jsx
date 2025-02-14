@@ -8,10 +8,11 @@ import { NotesContext } from "../../context/NotesContext";
 import { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { getOneNote } from "../../config/noteCRUD/getOneNote";
-import { createNote } from "../../config/noteCRUD/createNote";
-import { updateNote } from "../../config/noteCRUD/updateNote";
+import { getOneNote } from "../../utils/getOneNote";
+import { createNote } from "../../utils/createNote";
+import { updateNote } from "../../utils/updateNote";
 import { notesValidationSchema } from "../../validator/notesValidationSchema";
+import { UserContext } from "../../context/UserContext";
 
 export const NoteModal = () => {
   const {
@@ -24,6 +25,7 @@ export const NoteModal = () => {
     setFileModal,
   } = useContext(NotesContext);
   const [noteData, setNoteData] = useState("");
+  const { normalUsername, setNormalUsername } = useContext(UserContext);
 
   const {
     register,
@@ -37,19 +39,20 @@ export const NoteModal = () => {
   const closeModal = () => {
     setNoteModal(false);
     setNoteId("");
+    setNormalUsername('');
   };
 
   const onSubmit = async (data) => {
     const success = noteId
-      ? await updateNote(noteId, data)
-      : await createNote(data);
+      ? await updateNote(noteId, data, normalUsername)
+      : await createNote(data, normalUsername);
     success && closeModal();
     success && setNoteCount(1);
   };
 
   useEffect(() => {
     if (noteId) {
-      getOneNote(noteId, reset, setNoteData);
+      getOneNote(noteId, reset, setNoteData, normalUsername);
     }
   }, [noteId, reset, fileModal]);
 

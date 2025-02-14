@@ -3,10 +3,12 @@ import { IoOpen } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 
 import { NotesContext } from "../../context/NotesContext";
+import { UserContext } from "../../context/UserContext";
 
 export const NoteCard = ({ noteDetails, index }) => {
   const { _id, content, date, title, userId } = noteDetails;
   const { setNoteModal, setNoteId, setDeleteModal } = useContext(NotesContext);
+  const { userDetails } = useContext(UserContext);
   const color = [
     "#a5f3fc",
     "#f5d0fe",
@@ -49,7 +51,11 @@ export const NoteCard = ({ noteDetails, index }) => {
         <span>
           {date.slice(11, 16)}, {date.slice(0, 10)}
         </span>
-        <span className="px-3 py-1 rounded-3xl bg-gray-100 font-semibold max-w-44 truncate">{userId.username}</span>
+        {userDetails.role === "admin" && (
+          <span className="px-3 py-1 rounded-3xl bg-gray-100 font-semibold max-w-44 truncate">
+            {userId.username}
+          </span>
+        )}
       </div>
     </div>
   );

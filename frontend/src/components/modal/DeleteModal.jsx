@@ -3,11 +3,13 @@ import { RxCross1 } from "react-icons/rx";
 import { BsExclamationCircle } from "react-icons/bs";
 
 import { NotesContext } from "../../context/NotesContext";
-import { deleteNote } from "../../config/noteCRUD/deleteNote";
+import { UserContext } from "../../context/UserContext";
+import { deleteNote } from "../../utils/deleteNote";
 
 export const DeleteModal = () => {
   const { setDeleteModal, setNoteModal, noteId, setNoteId } =
     useContext(NotesContext);
+  const { normalUsername } = useContext(UserContext);
 
   const closeModal = () => {
     setNoteModal(false);
@@ -30,7 +32,7 @@ export const DeleteModal = () => {
           <button
             type="button"
             className="text-white bg-red-600 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            onClick={() => deleteNote(noteId, closeModal)}
+            onClick={() => deleteNote(noteId, closeModal, normalUsername)}
           >
             Yes, I'm sure
           </button>

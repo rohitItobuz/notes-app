@@ -11,7 +11,7 @@ const noteAttachmentExtension = [
   "	application/msword",
 ];
 
-const createSotrage = (folder) => {
+const createStorage = (folder) => {
   return multer.diskStorage({
     destination: `./uploads/${folder}`,
     filename: function (req, file, cb) {
@@ -33,11 +33,11 @@ const fileValidation = (allowedTypes) => {
 };
 
 export const profileUpload = multer({
-  storage:createSotrage('user'),
+  storage:createStorage('user'),
   fileFilter: fileValidation(profileImageExtension),
 });
 
 export const noteAttachment = multer({
-  storage:createSotrage('note'),
+  storage:createStorage('note'),
   fileFilter: fileValidation(noteAttachmentExtension),
 });

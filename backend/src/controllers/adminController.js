@@ -4,15 +4,17 @@ import user from "../models/userSchema.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
 import session from "../models/sessionSchema.js";
 import notes from "../models/notesSchema.js";
+import { statusCode } from "../config/constant.js";
 
 export const getAllUsers = async (req, res) => {
   try {
     if (req.body.role !== "admin")
-      return errorMessage(res, 403, "User not authorized");
-    const users = await user.find({ role: "user" }, { _id: 0 });
-    if (!users.length) return errorMessage(res, 404, "No user present.");
+      return errorMessage(res, statusCode.FORBIDDEN, "User not authorized");
+    const users = await user.find({ role: "user" }, { _id: 0, password: 0 });
+    if (!users.length)
+      return errorMessage(res, statusCode.NOT_FOUND, "No user present.");
     return res.json({
-      status: 201,
+      status: statusCode.CREATED,
       data: users,
       message: `Successfully get all users`,
       success: true,
@@ -26,9 +28,11 @@ export const getAllUsers = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { role, userId } = req.body;
-    if (role !== "admin") return errorMessage(res, 403, "User not authorized");
+    if (role !== "admin")
+      return errorMessage(res, statusCode.FORBIDDEN, "User not authorized");
     const targetUser = await user.findById(userId);
-    if (!targetUser) return errorMessage(res, 404, "No such user found.");
+    if (!targetUser)
+      return errorMessage(res, statusCode.NOT_FOUND, "No such user found.");
 
     if (targetUser.profile !== "") {
       const oldFilePath = targetUser.profile.replace(
@@ -40,7 +44,7 @@ export const deleteUser = async (req, res) => {
     await user.findByIdAndDelete(userId);
     await session.deleteMany({ userId });
     await notes.deleteMany({ userId });
-    return successMessage(res, 200, "Successfully deleted one user.");
+    return successMessage(res, statusCode.OK, "Successfully deleted one user.");
   } catch (err) {
     console.log(err);
     errorMessage(res);

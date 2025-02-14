@@ -13,6 +13,8 @@ const UserProvider = ({ children }) => {
   });
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [editUsername, setEditUsername] = useState(false);
+  const [userList, setUserList] = useState([]);
+  const [normalUsername, setNormalUsername] = useState("");
 
   const updateUserDetails = (key, value) => {
     const data = JSON.parse(localStorage.getItem("userDetails"));
@@ -73,6 +75,10 @@ const UserProvider = ({ children }) => {
         setEditUsername,
         isLoggedIn,
         setLoggedIn,
+        userList,
+        setUserList,
+        normalUsername,
+        setNormalUsername,
       }}
     >
       {children}

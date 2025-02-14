@@ -1,17 +1,13 @@
 import { useContext } from "react";
 
+import { fileUpload } from "../../utils/fileUpload";
 import { NotesContext } from "../../context/NotesContext";
-import { fileUpload } from "../../config/noteCRUD/fileUpload";
 
 export const FileModal = () => {
   const { noteId, setFileModal } = useContext(NotesContext);
 
-  const closeModal = () => {
-    setFileModal(false);
-  };
-
   function handleChange(event) {
-    fileUpload(noteId, event.target.files[0], closeModal);
+    fileUpload(noteId, event.target.files[0], setFileModal);
   }
 
   return (

@@ -1,10 +1,18 @@
-import axiosInstance from "../axios";
+import axiosInstance from "../config/axios";
 
-export const getAllNote = async (filter, setNotes, setNoteCount) => {
+export const getAllNote = async (
+  filter,
+  setNotes,
+  setNoteCount,
+  normalUsername
+) => {
   try {
     const { title, page, limit, sortby, order } = filter;
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.post(
       `notes/getAll?page=${page}&limit=${limit}&title=${title}&order=${order}&sortby=${sortby}`,
+      {
+      normalUsername
+      }
     );
     setTimeout(() => {
       const result = response.data;
