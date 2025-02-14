@@ -46,6 +46,7 @@ export default function LogIn() {
         toast.error(result.message);
       }
     } catch (error) {
+      error.status === 429 && toast.error(error.response.data);
       console.error(error);
     }
   };
