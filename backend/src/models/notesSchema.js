@@ -17,6 +17,7 @@ const notes = new Schema({
   },
   date: {
     type: Date,
+    default: Date.now() + 330 * 60000,
   },
   file: {
     type: String,
