@@ -4,14 +4,16 @@ import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
 
 import { NoteCard } from "../components/notes/NoteCard";
 import { NoteModal } from "../components/modal/NoteModal";
-import { FileModal } from "../components/modal/FileUpload";
+import { FileModal } from "../components/modal/FileModal";
 import { PageButton } from "../components/notes/PageButton";
 import { DeleteModal } from "../components/modal/DeleteModal";
-import { NotesFilter } from "../components/notes/NotesFliter";
+import { NotesFilter } from "../components/notes/NotesFilter";
 import { NotesContext } from "../context/NotesContext";
+import { getAllNote } from "../utils/getAllNote";
 import { DashboardNavbar } from "../components/nav/DashboardNavbar";
 import notebook from "../assets/notebook.png";
-import {getAllNote} from '../config/noteCRUD/getAllNote';
+import { UserContext } from "../context/UserContext";
+import { UsernameFilter } from "../components/notes/UsernameFilter";
 
 const Dashboard = () => {
   const {
@@ -27,6 +29,8 @@ const Dashboard = () => {
     setNoteCount,
   } = useContext(NotesContext);
 
+  const { userDetails, normalUsername } = useContext(UserContext);
+
   const calculatePage = () => {
     if (noteCount / filter.limit === 0 && filter.page !== 1)
       setFilter((prev) => {
@@ -36,10 +40,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     calculatePage();
-    getAllNote(filter, setNotes, setNoteCount);
+    getAllNote(filter, setNotes, setNoteCount, normalUsername);
   }, [
     noteModal,
     deleteModal,
+    normalUsername,
     filter.limit,
     filter.order,
     filter.page,
@@ -49,7 +54,7 @@ const Dashboard = () => {
   useEffect(() => {
     const getData = setTimeout(() => {
       calculatePage();
-      getAllNote(filter, setNotes, setNoteCount);
+      getAllNote(filter, setNotes, setNoteCount, normalUsername);
     }, 1000);
     return () => clearTimeout(getData);
   }, [filter.title]);
@@ -60,7 +65,9 @@ const Dashboard = () => {
 
       <NotesFilter />
 
-      <div className="m-3 md:mx-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
+      {userDetails.role === "admin" && <UsernameFilter />}
+
+      <div className="m-5 md:mx-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
         {notes.map((note, i) => (
           <NoteCard noteDetails={note} index={i % 6} key={note._id} />
         ))}
@@ -72,12 +79,14 @@ const Dashboard = () => {
 
       {deleteModal && <DeleteModal />}
 
-      <button
-        onClick={() => setNoteModal(true)}
-        className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-4 shadow-md"
-      >
-        <FaPlus color="white" size={30} />
-      </button>
+      {userDetails.role === "user" && (
+        <button
+          onClick={() => setNoteModal(true)}
+          className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-4 shadow-md"
+        >
+          <FaPlus color="white" size={30} />
+        </button>
+      )}
 
       {noteCount === 0 && (
         <div className="flex flex-col items-center">

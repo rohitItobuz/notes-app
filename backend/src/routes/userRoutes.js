@@ -20,6 +20,8 @@ import {
   updatePassword,
 } from "../controllers/userController.js";
 import { profileUpload } from "../middlewares/multer.js";
+import { getAllUsers } from "../controllers/adminController.js";
+import { deleteUser } from "../controllers/adminController.js";
 
 const userRoute = express.Router();
 
@@ -28,6 +30,8 @@ userRoute.get("/verify", verifyEmail);
 userRoute.get("/regenerate-token", regenerateAccessToken);
 userRoute.delete("/logout-one", userAuthentication, logoutOne);
 userRoute.delete("/logout-all", userAuthentication, logoutAll);
+userRoute.get("/getall-users", userAuthentication, getAllUsers);
+userRoute.delete("/delete-user", userAuthentication, deleteUser);
 userRoute.post("/login", validateData(loginValidationSchema), login);
 userRoute.post("/register", validateData(userValidationSchema), register);
 userRoute.post(

@@ -6,6 +6,7 @@ import { Button } from "../Button";
 import "./FormStyle.scss";
 import { FormErrorMsg } from "./FormErrorMsg";
 import { NavLinkTransparent } from "../nav/NavLinkTransparent";
+import { Input } from "./Input";
 
 const Form = ({
   heading,
@@ -39,23 +40,8 @@ const Form = ({
           >
             {inputs.map((input, id) => (
               <div key={id} className="relative w-full">
-                <div
-                  className={`relative flex gap-3 items-center border-solid border-2 form-input-container rounded-md px-3 ${
-                    errors[input.inputName] ? "border-red-500" : ""
-                  }`}
-                >
-                  {input.icon}
-                  <input
-                    type={input.type}
-                    className="outline-none form-input z-10 bg-transparent p-2 w-full"
-                    placeholder=" "
-                    autoComplete="off"
-                    {...register(input.inputName)}
-                  />
-                  <label className="absolute text-sm form-label left-9 bg-white text-zinc-500 px-3">
-                    {input.label || input.inputName}
-                  </label>
-                </div>
+                <Input inputFields={input} register={register} errors={errors}/>
+
                 {errors[input.inputName] && (
                   <FormErrorMsg msg={errors[input.inputName].message} />
                 )}

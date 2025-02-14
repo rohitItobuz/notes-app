@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
 import { LuUserPen } from "react-icons/lu";
@@ -6,17 +6,18 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm } from "react-hook-form";
-import axiosInstance from "../config/axios";
 import { Button } from "../components/Button";
 import { UserContext } from "../context/UserContext";
 import { NavLinkSolid } from "../components/nav/NavLinkSolid";
 import { FormErrorMsg } from "../components/form/FormErrorMsg";
 import default_profile_pic from "../assets/default_profile_pic.webp";
 import { changeUsernameSchema } from "../validator/userValidationSchema";
+import axios from "axios";
 
 export const UserProfile = () => {
   const {
     userDetails,
+    setUserDetails,
     uploadProfilePic,
     changeUsername,
     editUsername,
@@ -34,11 +35,21 @@ export const UserProfile = () => {
 
   const logout = async (count) => {
     try {
-      const response = await axiosInstance.delete(`user/logout-${count}`);
+      const response = await axios.delete(`http://localhost:3000/user/logout-${count}`, {
+        headers: {
+          'Authorization': "Bearer " + localStorage.getItem("refreshToken"),
+        },
+      });
       const result = response.data;
       if (result.success) {
         toast.success(result.message);
         localStorage.clear();
+        setUserDetails({
+          username: "",
+          email: "",
+          profile: "",
+          role: "",
+        });
         navigate("/login");
       } else {
         toast.error(result.message);
@@ -49,6 +60,11 @@ export const UserProfile = () => {
     }
   };
 
+  useEffect(() => {
+    const userData = localStorage.getItem("userDetails");
+    userData && userData !== "" && setUserDetails(JSON.parse(userData));
+  }, []);
+
   return (
     <div className="h-screen flex justify-center items-center p-2">
       <div className="bg-white shadow-lg rounded-lg p-6 bg-gradient-to-r from-rose-100 to-blue-100 border-gray-300 border">
@@ -58,7 +74,7 @@ export const UserProfile = () => {
               src={
                 userDetails.profile === ""
                   ? default_profile_pic
-                  : userDetails.profile.replace('http:/','http://')
+                  : userDetails.profile.replace("http:/", "http://")
               }
               className="w-48 h-48 rounded-full border border-gray-300 object-cover"
               alt="Profile"
@@ -91,9 +107,9 @@ export const UserProfile = () => {
                 <label className="absolute text-sm form-label left-9 bg-gradient-to-r from-rose-100 to-rose-50 text-zinc-500 px-3">
                   New username
                 </label>
-              {errors.username && (
-                <FormErrorMsg msg={errors.username.message} />
-              )}
+                {errors.username && (
+                  <FormErrorMsg msg={errors.username.message} />
+                )}
               </div>
 
               <Button text={"UPDATE"} />
@@ -131,8 +147,7 @@ export const UserProfile = () => {
           </button>
         </div>
         <div className="mt-8 text-center">
-
-        <NavLinkSolid text="Go to dashboard &#10142;" to="/dashboard"/>
+          <NavLinkSolid text="Go to dashboard &#10142;" to="/dashboard" />
         </div>
       </div>
     </div>

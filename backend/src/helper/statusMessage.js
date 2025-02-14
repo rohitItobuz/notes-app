@@ -1,6 +1,8 @@
-export const successMessage = (res, statusCode, text) => {
+import { statusCode } from "../config/constant.js";
+
+export const successMessage = (res, status, text) => {
   return res.json({
-    status: statusCode,
+    status: status,
     message: text,
     success: true,
   });
@@ -8,11 +10,11 @@ export const successMessage = (res, statusCode, text) => {
 
 export const errorMessage = (
   res,
-  statusCode = 500,
+  status = statusCode.INTERNAL_SERVER_ERROR,
   text = "Internal Server Error"
 ) => {
   return res.json({
-    status: statusCode,
+    status: status,
     message: text,
     success: false,
   });

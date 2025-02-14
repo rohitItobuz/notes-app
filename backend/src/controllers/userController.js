@@ -3,10 +3,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 import fs from "fs";
+
 import user from "../models/userSchema.js";
 import session from "../models/sessionSchema.js";
 import { mailSend } from "../helper/mailSend.js";
 import { errorMessage, successMessage } from "../helper/statusMessage.js";
+import { statusCode } from "../config/constant.js";
 
 dotenv.config();
 
@@ -14,9 +16,18 @@ export const verificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const userPresent = await user.findOne({ email });
-    if (!userPresent) return errorMessage(res, 401, "You are not registered.");
+    if (!userPresent)
+      return errorMessage(
+        res,
+        statusCode.UNAUTHORIZED,
+        "You are not registered."
+      );
     if (userPresent.isVerified)
-      return errorMessage(res, 409, "You are already verified.");
+      return errorMessage(
+        res,
+        statusCode.CONFLICT,
+        "You are already verified."
+      );
     const token = jwt.sign(
       { id: userPresent._id, role: userPresent.role },
       process.env.secretKey,
@@ -27,7 +38,7 @@ export const verificationEmail = async (req, res) => {
     await mailSend(token, email);
     return successMessage(
       res,
-      201,
+      statusCode.CREATED,
       "Verification mail has been successfully sent."
     );
   } catch (err) {
@@ -38,21 +49,23 @@ export const verificationEmail = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { email, password, username, role } = req.body;
-    const userRole = role === "admin" ? "admin" : "user";
+    const { email, password, username } = req.body;
     const encryptedPass = await bcrypt.hash(password, 10);
     const userPresent = await user.findOne({ email });
     if (userPresent)
-      return errorMessage(res, 409, "It seems you already have an account.");
+      return errorMessage(
+        res,
+        statusCode.CONFLICT,
+        "It seems you already have an account."
+      );
     const checkUsername = await user.findOne({ username });
     if (checkUsername)
-      return errorMessage(res, 409, "Username is already present.");
-    await user.create({
-      email,
-      password: encryptedPass,
-      username,
-      role: userRole,
-    });
+      return errorMessage(
+        res,
+        statusCode.CONFLICT,
+        "Username is already present."
+      );
+    await user.create({ email, password: encryptedPass, username });
     verificationEmail(req, res);
   } catch (err) {
     console.log(err);
@@ -67,14 +80,14 @@ export const verifyEmail = async (req, res) => {
       if (err)
         return errorMessage(
           res,
-          400,
+          statusCode.BAD_REQUEST,
           `Email verification failed, ${err.message}`
         );
       const id = decoded.id;
       const targetUser = await user.findById(id);
       targetUser.isVerified = true;
       await targetUser.save();
-      successMessage(res, 200, "Email verified successfully");
+      successMessage(res, statusCode.OK, "Email verified successfully");
     });
   } catch (err) {
     console.log(err);
@@ -86,30 +99,45 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const targetUser = await user.findOne({ email });
-    if (!targetUser) return errorMessage(res, 401, "Invalid credentials");
+    if (!targetUser)
+      return errorMessage(res, statusCode.UNAUTHORIZED, "Invalid credentials");
 
     if (!targetUser.isVerified)
-      return errorMessage(res, 401, "You are not verified.");
+      return errorMessage(
+        res,
+        statusCode.UNAUTHORIZED,
+        "You are not verified."
+      );
 
     const passwordMatch = await bcrypt.compare(password, targetUser.password);
-    if (!passwordMatch) return errorMessage(res, 401, "Invalid credentials");
+    if (!passwordMatch)
+      return errorMessage(res, statusCode.UNAUTHORIZED, "Invalid credentials");
 
     const id = targetUser._id;
-    const refreshToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "15d",
-    });
-    const accessToken = jwt.sign({ id }, process.env.secretKey, {
-      expiresIn: "30m",
-    });
+    const refreshToken = jwt.sign(
+      { id, role: targetUser.role },
+      process.env.secretKey,
+      {
+        expiresIn: "15d",
+      }
+    );
+    const accessToken = jwt.sign(
+      { id, role: targetUser.role },
+      process.env.secretKey,
+      {
+        expiresIn: "30m",
+      }
+    );
     await session.create({ userId: id, refreshToken });
     return res.json({
-      status: 201,
+      status: statusCode.CREATED,
       data: {
         refreshToken,
         accessToken,
         email,
         username: targetUser.username,
         profile: targetUser.profile,
+        role: targetUser.role,
       },
       message: "You logged in successfully",
       success: true,
@@ -124,13 +152,13 @@ export const regenerateAccessToken = (req, res) => {
   try {
     const token = req.headers.authorization.replace("Bearer ", "");
     jwt.verify(token, process.env.secretKey, async (err, decoded) => {
-      if (err) return errorMessage(res, 400, err.message);
-      const id = decoded.id;
-      const accessToken = jwt.sign({ id }, process.env.secretKey, {
+      if (err) return errorMessage(res, statusCode.BAD_REQUEST, err.message);
+      const { id, role } = decoded;
+      const accessToken = jwt.sign({ id, role }, process.env.secretKey, {
         expiresIn: "30m",
       });
       return res.json({
-        status: 201,
+        status: statusCode.CREATED,
         accessToken,
         message: "Successfully change access token",
         success: true,
@@ -144,9 +172,9 @@ export const regenerateAccessToken = (req, res) => {
 
 export const logoutAll = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.body.userId;
     await session.deleteMany({ userId });
-    successMessage(res, 200, "Successfully deleted all sessions");
+    successMessage(res, statusCode.OK, "Successfully deleted all sessions");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -155,11 +183,11 @@ export const logoutAll = async (req, res) => {
 
 export const logoutOne = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.body.userId;
     const refreshToken = req.headers.authorization.replace("Bearer ", "");
     const targetUser = await session.findOneAndDelete({ userId, refreshToken });
     if (!targetUser) return errorMessage(res, 400, "Invalid refreshToken");
-    successMessage(res, 200, "Successfully deleted one session");
+    successMessage(res, statusCode.OK, "Successfully deleted one session");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -168,8 +196,9 @@ export const logoutOne = async (req, res) => {
 
 export const uploadProfile = async (req, res) => {
   try {
-    const id = req.userId;
-    if (!req.file) return errorMessage(res, 400, "No file uploaded.");
+    const id = req.body.userId;
+    if (!req.file)
+      return errorMessage(res, statusCode.BAD_REQUEST, "No file uploaded.");
     const targetUser = await user.findById(id);
     if (targetUser.profile !== "") {
       const oldFilePath = targetUser.profile.replace(
@@ -183,9 +212,9 @@ export const uploadProfile = async (req, res) => {
       req.file.filename
     );
     const result = await user.findByIdAndUpdate(id, { profile: fileName });
-    if (!result) errorMessage(res, 400, "No file uploaded.");
+    if (!result) errorMessage(res, statusCode.BAD_REQUEST, "No file uploaded.");
     return res.json({
-      status: 201,
+      status: statusCode.CREATED,
       profile: fileName,
       message: "File uploaded successfully.",
       success: true,
@@ -198,13 +227,18 @@ export const uploadProfile = async (req, res) => {
 
 export const updateUsername = async (req, res) => {
   try {
-    const { username } = req.body;
-    const id = req.userId;
+    const { username, userId } = req.body;
     const checkUsername = await user.findOne({ username });
-    if (checkUsername)
-      return errorMessage(res, 409, "Username is already present.");
-    await user.findByIdAndUpdate(id, { username });
-    successMessage(res, 201, "Username changed successfully.");
+    if (checkUsername && checkUsername._id.toString() !== userId)
+      return errorMessage(
+        res,
+        statusCode.CONFLICT,
+        "Username is already present."
+      );
+    const targetUser = await user.findByIdAndUpdate(userId, { username });
+    if (!targetUser)
+      return errorMessage(res, statusCode.CONFLICT, "Username not changed");
+    successMessage(res, statusCode.CREATED, "Username changed successfully.");
   } catch (err) {
     console.log(err);
     errorMessage(res);
@@ -214,14 +248,15 @@ export const updateUsername = async (req, res) => {
 export const updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const id = req.userId;
+    const id = req.body.userId;
     const targetUser = await user.findById(id);
     const passwordMatch = bcrypt.compareSync(oldPassword, targetUser.password);
     console.log(passwordMatch);
-    if (!passwordMatch) return errorMessage(res, 400, "Wrong password.");
+    if (!passwordMatch)
+      return errorMessage(res, statusCode.BAD_REQUEST, "Wrong password.");
     targetUser.password = await bcrypt.hash(newPassword, 10);
     await targetUser.save();
-    successMessage(res, 201, "Password changed successfully.");
+    successMessage(res, statusCode.CREATED, "Password changed successfully.");
   } catch (err) {
     console.log(err);
     errorMessage(res);

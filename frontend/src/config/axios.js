@@ -4,9 +4,18 @@ const axiosInstance = axios.create({
     baseURL: "http://localhost:3000/",
     headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("refreshToken")}`,
     },
 });
+
+axiosInstance.interceptors.request.use(request => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      request.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    return request;
+  }, error => {
+    return Promise.reject(error);
+  });
 
 axiosInstance.interceptors.response.use(async (response) => {
     if (response.data.status !== 401) return response;

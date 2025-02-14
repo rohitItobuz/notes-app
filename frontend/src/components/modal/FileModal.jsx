@@ -1,21 +1,17 @@
 import { useContext } from "react";
 
+import { fileUpload } from "../../utils/fileUpload";
 import { NotesContext } from "../../context/NotesContext";
-import { fileUpload } from "../../config/noteCRUD/fileUpload";
 
 export const FileModal = () => {
   const { noteId, setFileModal } = useContext(NotesContext);
 
-  const closeModal = () => {
-    setFileModal(false);
-  };
-
   function handleChange(event) {
-    fileUpload(noteId, event.target.files[0], closeModal);
+    fileUpload(noteId, event.target.files[0], setFileModal);
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-50">
       <div className="bg-white p-4 m-2 rounded-lg shadow-xl max-w-96 flex flex-col items-center">
         <form action="">
           <label className="mb-3 block text-center font-medium text-gray-700">

@@ -15,7 +15,7 @@ import { noteAttachment } from "../middlewares/multer.js";
 const noteRouter = express.Router();
 
 noteRouter.get("/getOne/:id", userAuthentication, getOne);
-noteRouter.get("/getAll", userAuthentication, getAllNotes);
+noteRouter.post("/getAll", userAuthentication, getAllNotes);
 noteRouter.delete("/delete/:id", userAuthentication, deleteNote);
 noteRouter.post(
   "/create",
