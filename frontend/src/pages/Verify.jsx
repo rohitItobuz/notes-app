@@ -15,6 +15,7 @@ const onSubmit = async (data, e) => {
       ? toast.success(result.message)
       : toast.error(result.message);
   } catch (error) {
+    error.status === 429 && toast.error(error.response.data);
     console.error(error);
   }
 };
