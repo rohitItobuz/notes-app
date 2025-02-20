@@ -11,19 +11,17 @@ export const getAllNote = async (
     const response = await axiosInstance.post(
       `notes/getAll?page=${page}&limit=${limit}&title=${title}&order=${order}&sortby=${sortby}`,
       {
-      normalUsername
+        normalUsername,
       }
     );
-    setTimeout(() => {
-      const result = response.data;
-      if (result.success) {
-        setNotes(result.data);
-        setNoteCount(result.totalNotes);
-      } else {
-        setNotes([]);
-        setNoteCount(0);
-      }
-    }, 200);
+    const result = response.data;
+    if (result.success) {
+      setNotes(result.data);
+      setNoteCount(result.totalNotes);
+    } else {
+      setNotes([]);
+      setNoteCount(0);
+    }
   } catch (error) {
     console.error(error);
   }

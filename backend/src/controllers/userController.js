@@ -262,3 +262,20 @@ export const updatePassword = async (req, res) => {
     errorMessage(res);
   }
 };
+
+export const getAllAdmins = async (req, res) => {
+  try {
+    const users = await user.find({ role: "admin" }, { _id: 0, password: 0 });
+    if (!users.length)
+      return errorMessage(res, statusCode.NOT_FOUND, "No Admin present.");
+    return res.json({
+      status: statusCode.CREATED,
+      data: users,
+      message: `Successfully get all admins`,
+      success: true,
+    });
+  } catch (err) {
+    console.log(err);
+    errorMessage(res);
+  }
+};

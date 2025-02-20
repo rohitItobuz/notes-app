@@ -8,10 +8,11 @@ import { DashboardNavbar } from "../components/nav/DashboardNavbar";
 import { NotesContext } from "../context/NotesContext";
 import { NoteModal } from "../components/modal/NoteModal";
 import { getAllUsers } from "../utils/getAllUser";
+import { ChatModal } from "../components/modal/ChatModal";
 
 export default function Admin() {
   const { noteModal, setNoteModal } = useContext(NotesContext);
-  const { userList, setUserList, normalUsername, setNormalUsername } =
+  const { userList, setUserList, normalUsername, setNormalUsername, chatModal, setChatModal} =
     useContext(UserContext);
 
   const tableHeader = [
@@ -98,7 +99,14 @@ export default function Admin() {
                   </button>
                 </td>
                 <td className="px-6 py-2 text-blue-600 cursor-pointer hover:underline border border-gray-300">
-                  Chat
+                  <button
+                    onClick={() => {
+                      setNormalUsername(user.username);
+                      setChatModal(true);
+                    }}
+                  >
+                    Chat
+                  </button>
                 </td>
                 <td className="px-6 py-2 border border-gray-300">
                   <button
@@ -117,6 +125,7 @@ export default function Admin() {
           </tbody>
         </table>
       </div>
+      {chatModal && <ChatModal/>}
       {noteModal && <NoteModal />}
     </>
   );

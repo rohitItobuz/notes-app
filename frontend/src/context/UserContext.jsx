@@ -15,6 +15,7 @@ const UserProvider = ({ children }) => {
   const [editUsername, setEditUsername] = useState(false);
   const [userList, setUserList] = useState([]);
   const [normalUsername, setNormalUsername] = useState("");
+  const [chatModal, setChatModal] = useState(false);
 
   const updateUserDetails = (key, value) => {
     const data = JSON.parse(localStorage.getItem("userDetails"));
@@ -79,6 +80,8 @@ const UserProvider = ({ children }) => {
         setUserList,
         normalUsername,
         setNormalUsername,
+        chatModal,
+        setChatModal,
       }}
     >
       {children}

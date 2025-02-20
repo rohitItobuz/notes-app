@@ -18,6 +18,7 @@ import {
   regenerateAccessToken,
   updateUsername,
   updatePassword,
+  getAllAdmins,
 } from "../controllers/userController.js";
 import { profileUpload } from "../middlewares/multer.js";
 import { getAllUsers } from "../controllers/adminController.js";
@@ -57,6 +58,12 @@ userRoute.put(
   validateData(passwordValidationSchema),
   userAuthentication,
   updatePassword
+);
+
+userRoute.get(
+  "/get-admins",
+  userAuthentication,
+  getAllAdmins
 );
 
 export default userRoute;
