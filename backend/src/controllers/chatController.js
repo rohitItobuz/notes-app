@@ -3,11 +3,11 @@ import { errorMessage } from "../helper/statusMessage.js";
 import userSchema from "../models/userSchema.js";
 import { statusCode } from "../config/constant.js";
 
-export const saveChat = async (senderId, receiverId, content) => {
+export const saveChat = async (sender, receiver, content) => {
   try {
     await Chat.create({
-      senderId,
-      receiverId,
+      sender,
+      receiver,
       content,
       date: Date.now() + 330 * 60000,
     });
@@ -19,27 +19,29 @@ export const saveChat = async (senderId, receiverId, content) => {
 export const getAllChat = async (req, res) => {
   try {
     const { userId } = req.body;
-    const receiverUser = await userSchema.findOne({username : req.query.receiverUsername});
+    const receiverUser = await userSchema.findOne({ username: req.query.receiverUsername });
     if (!receiverUser)
       return errorMessage(res, statusCode.NOT_FOUND, "No such user found");
     const receiverId = receiverUser._id;
     const allChat = await Chat.find(
       {
         $or: [
-          { senderId: userId, receiverId },
-          { senderId: receiverId, receiverId: userId },
+          { sender: userId, receiver : receiverId },
+          { sender: receiverId, receiver: userId },
         ],
-      },
-      { senderId: 0 }
+      }
     ).populate({
-      path: "receiverId",
+      path: "receiver",
+      select: { username: 1, _id: 0 },
+    }).populate({
+      path: "sender",
       select: { username: 1, _id: 0 },
     });
 
     res.json({
       status: statusCode.CREATED,
       data: allChat,
-      message: `Successfully fetch all notes`,
+      message: `Successfully fetch all chat`,
       success: true,
     });
   } catch (err) {

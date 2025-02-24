@@ -36,7 +36,12 @@ server.listen(port, () => {
 
 databaseConnect();
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
 io.use((socket, next) => {
   const accessToken = socket.handshake.headers.authorization.replace(
@@ -53,23 +58,23 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("User connected", socket.senderId);
   socket.join(socket.senderId);
 
   socket.on("send_message", async (message) => {
     const targetUser = await userSchema.findOne({
-      username: message.receiverUsername,
+      username: message.receiver.username,
     });
     if (targetUser) {
-      socket.to(targetUser._id).emit("receive_message", message);
-      await saveChat(socket.senderId,targetUser._id, message.content);
+      socket.to(targetUser._id.toString()).emit("receive_message", message);
+      await saveChat(socket.senderId, targetUser._id, message.content);
     } else {
-      console.log("Receiver not connected:", message.receiverUsername);
+      console.log("Receiver not connected");
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User  disconnected:", socket.id);
-    socket.leave(socket.senderId);
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("User disconnected:", socket.id);
+  //   socket.leave(socket.senderId);
+  // });
 });

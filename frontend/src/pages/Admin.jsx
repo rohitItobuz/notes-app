@@ -9,10 +9,12 @@ import { NotesContext } from "../context/NotesContext";
 import { NoteModal } from "../components/modal/NoteModal";
 import { getAllUsers } from "../utils/getAllUser";
 import { ChatModal } from "../components/modal/ChatModal";
+import { ChatContext } from "../context/ChatsContext";
 
 export default function Admin() {
   const { noteModal, setNoteModal } = useContext(NotesContext);
-  const { userList, setUserList, normalUsername, setNormalUsername, chatModal, setChatModal} =
+  const { setChatUser, chatModal, setChatModal } = useContext(ChatContext);
+  const { userList, setUserList, normalUsername, setNormalUsername} =
     useContext(UserContext);
 
   const tableHeader = [
@@ -101,7 +103,7 @@ export default function Admin() {
                 <td className="px-6 py-2 text-blue-600 cursor-pointer hover:underline border border-gray-300">
                   <button
                     onClick={() => {
-                      setNormalUsername(user.username);
+                      setChatUser(user);
                       setChatModal(true);
                     }}
                   >

@@ -14,6 +14,10 @@ import { DashboardNavbar } from "../components/nav/DashboardNavbar";
 import notebook from "../assets/notebook.png";
 import { UserContext } from "../context/UserContext";
 import { UsernameFilter } from "../components/notes/UsernameFilter";
+import { ContactModal } from "../components/modal/ContactModal";
+import { ChatModal } from "../components/modal/ChatModal";
+import { ChatContext } from "../context/ChatsContext";
+import { BsChatDots } from "react-icons/bs";
 
 const Dashboard = () => {
   const {
@@ -30,6 +34,7 @@ const Dashboard = () => {
   } = useContext(NotesContext);
 
   const { userDetails, normalUsername } = useContext(UserContext);
+  const { chatModal, contactModal, setContactModal } = useContext(ChatContext);
 
   const calculatePage = () => {
     if (noteCount / filter.limit === 0 && filter.page !== 1)
@@ -79,12 +84,25 @@ const Dashboard = () => {
 
       {deleteModal && <DeleteModal />}
 
+      {contactModal && <ContactModal />}
+
+      {chatModal && <ChatModal />}
+
       {userDetails.role === "user" && (
         <button
           onClick={() => setNoteModal(true)}
-          className="fixed bg-blue-600 rounded-full top-[87vh] p-5 right-4 shadow-md"
+          className="fixed bg-blue-600 rounded-full top-[90vh] p-3 right-4 shadow-md"
         >
           <FaPlus color="white" size={30} />
+        </button>
+      )}
+
+      {userDetails.role === "user" && (
+        <button
+          onClick={() => setContactModal(true)}
+          className="fixed bg-teal-500 rounded-full top-[80vh] p-3 right-4 shadow-md"
+        >
+          <BsChatDots color="white" size={30} />
         </button>
       )}
 

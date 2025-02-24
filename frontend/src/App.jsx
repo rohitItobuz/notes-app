@@ -13,27 +13,30 @@ import { PasswordChange } from "./pages/PasswordChange";
 import { UserProvider } from "./context/UserContext";
 import { NotesProvider } from "./context/NotesContext";
 import Admin from "./pages/Admin";
+import { ChatProvider } from "./context/ChatsContext";
 
 const App = () => {
   return (
     <UserProvider>
       <NotesProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-            </Route>
-            <Route path="*" element={<ErrorPage />} />
-            <Route path="/login" element={<LogIn />} />
-            <Route path="/verify" element={<Verify />} />
-            <Route path="/register" element={<SignUp />} />
-            <Route path="/password" element={<PasswordChange />} />
-            <Route path="/email-verify/:token" element={<EmailVerify />} />
-          </Routes>
-        </BrowserRouter>
+        <ChatProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+              <Route path="*" element={<ErrorPage />} />
+              <Route path="/login" element={<LogIn />} />
+              <Route path="/verify" element={<Verify />} />
+              <Route path="/register" element={<SignUp />} />
+              <Route path="/password" element={<PasswordChange />} />
+              <Route path="/email-verify/:token" element={<EmailVerify />} />
+            </Routes>
+          </BrowserRouter>
+        </ChatProvider>
       </NotesProvider>
     </UserProvider>
   );
